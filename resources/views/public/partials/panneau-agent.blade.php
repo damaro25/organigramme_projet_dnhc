@@ -8,6 +8,11 @@
 
     <div class="flex items-center justify-between border-b border-slate-200 px-5 py-3">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Fiche de l'agent</h2>
+        <a x-show="panneau.donnees?.agent" :href="@js(route('agents.fiche.pdf', '__ID__')).replace('__ID__', panneau.donnees?.agent?.id)"
+           class="ml-auto mr-2 inline-flex items-center gap-1 rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">
+            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.53 8.72a.75.75 0 00-1.06 1.06l4 4a.75.75 0 001.06 0l4-4a.75.75 0 10-1.06-1.06l-2.72 2.72V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>
+            Fiche PDF
+        </a>
         <button type="button" @click="fermerFiche()" class="rounded-md p-1 text-slate-500 hover:bg-slate-100" aria-label="Fermer">
             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
         </button>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\RoleProjet;
 use App\Enums\StatutProjet;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProjetRequest;
@@ -62,6 +63,7 @@ class ProjetController extends Controller
         $projet = DB::transaction(function () use ($request) {
             $projet = Projet::create($request->safe()->except(['affectations', 'pieces_jointes']));
             $projet->agents()->sync($request->affectations());
+            $this->journaliserAffectations($projet, '');
             $this->enregistrerPiecesJointes($request, $projet);
 
             return $projet;
@@ -81,8 +83,10 @@ class ProjetController extends Controller
     public function update(ProjetRequest $request, Projet $projet): RedirectResponse
     {
         DB::transaction(function () use ($request, $projet) {
+            $avant = $this->resumeAffectations($projet);
             $projet->update($request->safe()->except(['affectations', 'pieces_jointes']));
             $projet->agents()->sync($request->affectations());
+            $this->journaliserAffectations($projet, $avant);
             $this->enregistrerPiecesJointes($request, $projet);
         });
 
@@ -162,5 +166,33 @@ class ProjetController extends Controller
             'agents' => Agent::actifs()->with('structure')->orderBy('nom')->get(),
             'statuts' => StatutProjet::cases(),
         ];
+    }
+
+    /** Agents affectés, sous forme lisible pour le journal : « Nom (Rôle), … ». */
+    private function resumeAffectations(Projet $projet): string
+    {
+        return $projet->agents()->orderBy('nom')->orderBy('prenom')->get()
+            ->map(function ($agent) {
+                $role = $agent->pivot->role;
+                $role = $role instanceof RoleProjet ? $role : RoleProjet::tryFrom((string) $role);
+
+                return $agent->nom_complet.' ('.($role?->libelle() ?? '?').')';
+            })
+            ->join(', ');
+    }
+
+    /** Le pivot agent_projet n'est pas un modèle journalisé : on trace le changement à la main. */
+    private function journaliserAffectations(Projet $projet, string $avant): void
+    {
+        $apres = $this->resumeAffectations($projet);
+        if ($apres === $avant) {
+            return;
+        }
+
+        activity('projets')
+            ->performedOn($projet)
+            ->event('updated')
+            ->withProperties(['attributes' => ['affectations' => $apres], 'old' => ['affectations' => $avant ?: null]])
+            ->log('Affectations du projet modifiées');
     }
 }

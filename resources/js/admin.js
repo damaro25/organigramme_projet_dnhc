@@ -4,6 +4,7 @@ import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.e
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import Sortable from 'sortablejs';
+import Chart from 'chart.js/auto';
 import { enregistrerOrganigramme } from './organigramme-composant';
 
 window.Sortable = Sortable;
@@ -155,6 +156,31 @@ Alpine.data('notifications', () => ({
         const id = Date.now() + Math.random();
         this.liste.push({ id, message });
         setTimeout(() => { this.liste = this.liste.filter((n) => n.id !== id); }, 3500);
+    },
+}));
+
+/** Graphique comparant les divisions : taux d'exécution moyen et nombre de projets. */
+Alpine.data('graphiqueDivisions', ({ libelles, taux, nombres, couleurs }) => ({
+    init() {
+        new Chart(this.$refs.canvas, {
+            type: 'bar',
+            data: {
+                labels: libelles,
+                datasets: [
+                    { label: "Taux d'exécution moyen (%)", data: taux, backgroundColor: couleurs, borderRadius: 6, yAxisID: 'y' },
+                    { label: 'Nombre de projets', data: nombres, type: 'line', borderColor: '#1e3a8a', backgroundColor: '#1e3a8a', pointRadius: 5, yAxisID: 'y1' },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (c) => `${c.dataset.label} : ${c.formattedValue}` } } },
+                scales: {
+                    y: { min: 0, max: 100, ticks: { callback: (v) => v + ' %' }, title: { display: true, text: 'Taux' } },
+                    y1: { position: 'right', min: 0, ticks: { precision: 0 }, grid: { drawOnChartArea: false }, title: { display: true, text: 'Projets' } },
+                },
+            },
+        });
     },
 }));
 

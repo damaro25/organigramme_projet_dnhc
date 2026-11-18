@@ -16,9 +16,13 @@ class User extends Authenticatable
 
     /** Rôles de l'application (spatie/laravel-permission). */
     public const ROLE_ADMIN = 'administrateur';
+
     public const ROLE_DIRECTION = 'direction';
+
     public const ROLE_CHEF = 'chef_structure';
+
     public const ROLE_CHARGE = 'charge_etudes';
+
     public const ROLE_CONSULTATION = 'consultation';
 
     protected $fillable = ['name', 'email', 'password', 'agent_id', 'actif'];

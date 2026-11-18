@@ -16,8 +16,11 @@ use Intervention\Image\ImageManager;
 class PhotoService
 {
     public const TAILLE = 512;
+
     public const TAILLE_MINIATURE = 128;
+
     public const QUALITE = 82;
+
     public const DOSSIER = 'agents';
 
     private ImageManager $images;

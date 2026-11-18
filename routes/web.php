@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\ExportPdfController;
 use App\Http\Controllers\FicheAgentController;
 use App\Http\Controllers\OrganigrammeController;
 use App\Http\Controllers\ProfileController;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [OrganigrammeController::class, 'index'])->name('organigramme');
 Route::get('/organigramme/donnees', [OrganigrammeController::class, 'donnees'])->name('organigramme.donnees');
 Route::get('/agents/{agent}/fiche', [FicheAgentController::class, 'show'])->name('agents.fiche');
+
+// Exports PDF : les mêmes informations que l'organigramme public.
+Route::get('/organigramme.pdf', [ExportPdfController::class, 'organigramme'])->name('organigramme.pdf');
+Route::get('/agents/{agent}/fiche.pdf', [ExportPdfController::class, 'ficheAgent'])->name('agents.fiche.pdf');
 
 // Après connexion, Breeze redirige vers « dashboard » : c'est le tableau de bord de l'administration.
 Route::redirect('/dashboard', '/admin')->name('dashboard');
@@ -41,6 +46,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:acceder_admin']
         ->parameters(['utilisateurs' => 'utilisateur']);
 
     Route::get('notifications', Admin\NotificationController::class)->name('notifications');
+    Route::get('journal', Admin\JournalController::class)->middleware('can:voir_journal')->name('journal');
 });
 
 Route::middleware('auth')->group(function () {
