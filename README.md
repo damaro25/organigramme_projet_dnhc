@@ -1,66 +1,156 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Organigramme et suivi des projets — DNH
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application web de la **Direction Nationale des Hydrocarbures** (Ministère de l'Assainissement, de l'Hydraulique et des Hydrocarbures) :
 
-## About Laravel
+- **Organigramme interactif** du personnel, en arbre généalogique (d3-org-chart) : DNH, services rattachés, DNAH, divisions, sections, chargés d'études et services déconcentrés ; recherche d'un agent, zoom, dépliage par branche.
+- **Fiche de chaque agent** au clic sur sa photo : coordonnées, projets affectés avec leurs étapes et leur taux d'exécution ; pour un chef, les projets consolidés de sa structure.
+- **Administration** : agents et photos (recadrage dans le navigateur), projets et étapes pondérées, structures, comptes utilisateurs, notifications.
+- **Tableau de bord** (indicateurs, graphique des divisions, classement des sections), **exports PDF** et **journal des modifications**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+L'interface est entièrement en français.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Pile technique
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Côté serveur | Côté navigateur |
+| --- | --- |
+| Laravel 12, PHP 8.2+ | Blade, Livewire 3, Alpine.js, Tailwind CSS |
+| spatie/laravel-permission (rôles) | d3-org-chart (arbre) |
+| spatie/laravel-activitylog (journal) | Cropper.js (recadrage des photos) |
+| intervention/image v3 (photos WebP) | SortableJS (ordre des étapes et structures) |
+| barryvdh/laravel-dompdf (PDF) | Chart.js (tableau de bord) |
 
-## Learning Laravel
+## Prérequis
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP **8.2 ou plus** avec les extensions `gd` (avec prise en charge **WebP**), `mbstring`, `pdo_mysql` (ou `pdo_sqlite`), `fileinfo`, `zip`
+- Composer 2
+- Node.js 20 ou plus et npm
+- MySQL 8 / MariaDB 10.6 ou plus (SQLite convient pour un essai)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Vérifier la prise en charge WebP : `php -r 'var_dump(gd_info()["WebP Support"] ?? false);'`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+```bash
+git clone git@github.com:damaro25/organigramme_projet_dnhc.git
+cd organigramme_projet_dnhc
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 1. Dépendances
+composer install
+npm install
 
-### Premium Partners
+# 2. Configuration
+cp .env.example .env
+php artisan key:generate
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Renseigner ensuite la base de données dans `.env` :
 
-## Contributing
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=dnh_organigramme
+DB_USERNAME=…
+DB_PASSWORD=…
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+> Pour un essai rapide sans MySQL : `DB_CONNECTION=sqlite`, supprimer les autres lignes `DB_*`, puis `touch database/database.sqlite`.
 
-## Code of Conduct
+```bash
+# 3. Base de données : tables + organigramme, comptes et projets de démonstration
+php artisan migrate --seed
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 4. Lien public vers les photos des agents (storage/app/public → public/storage)
+php artisan storage:link
 
-## Security Vulnerabilities
+# 5. Compilation des fichiers CSS et JavaScript
+npm run build
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 6. Lancement
+php artisan serve
+```
 
-## License
+L'application est alors disponible sur <http://127.0.0.1:8000> : l'organigramme public s'affiche à l'accueil, l'administration est sur `/admin` (connexion sur `/login`).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Notifications
+
+Quand une étape est cochée, le responsable du projet reçoit une notification (dans l'application et par e-mail). Elles passent par la file d'attente :
+
+```bash
+php artisan queue:work
+```
+
+En développement, `MAIL_MAILER=log` écrit les e-mails dans `storage/logs/laravel.log`. En production, configurer le serveur SMTP (`MAIL_*`) et faire tourner `queue:work` sous un superviseur (Supervisor, systemd).
+
+### Développement
+
+`composer run dev` lance en une commande le serveur, la file d'attente, les journaux et Vite (rechargement à chaud).
+
+## Comptes de démonstration
+
+Mot de passe commun : **`Dnh@2026`**
+
+| E-mail | Rôle | Agent rattaché | Ce qu'il peut faire |
+| --- | --- | --- | --- |
+| `admin@dnh.local` | Administrateur | Chef du service Informatique | Tout : agents, projets, structures, comptes, journal |
+| `dnh@dnh.local` | Direction | Directeur National (DNH) | Tout consulter, valider les projets, journal |
+| `dnah@dnh.local` | Direction | Directrice Nationale Adjointe (DNAH) | Idem |
+| `chef.division@dnh.local` | Chef de structure | Cheffe de la Division Aval Pétrolier | Gérer agents, photos et projets de sa division et de ses sections |
+| `chef.section@dnh.local` | Chef de structure | Cheffe de la section SSTD | Gérer agents, photos et projets de sa section |
+| `charge.etudes@dnh.local` | Chargé d'études | Premier chargé d'études de la SSTD | Cocher les étapes de ses projets, modifier sa propre photo |
+| `consultation@dnh.local` | Consultation | Chef du SAF | Lecture seule |
+
+L'organigramme public, les fiches des agents et les exports PDF sont accessibles sans connexion.
+
+> ⚠️ Les noms, e-mails et téléphones des données de démonstration sont fictifs. Avant la mise en production, remplacer les données et **changer ou supprimer ces comptes** (menu *Utilisateurs*).
+
+## Règles de calcul
+
+- **Taux d'exécution d'un projet** = somme des poids des étapes terminées ÷ somme des poids de toutes les étapes × 100, arrondi à l'entier. Un projet sans étape est à 0 %.
+- **Taux moyen d'un agent** = moyenne simple des taux de ses projets non archivés.
+- **Taux consolidé d'une structure** = moyenne simple des taux des projets non archivés de la structure et de ses sous-structures.
+- **En retard** : la date de fin prévue est dépassée et le taux est inférieur à 100 %.
+- **Couleurs** : rouge sous 30 %, orange de 30 à 70 %, vert au-delà.
+
+## Fonctionnalités par écran
+
+| Écran | Adresse |
+| --- | --- |
+| Organigramme public | `/` |
+| Export PDF de l'organigramme (A3 paysage) | `/organigramme.pdf` |
+| Fiche PDF d'un agent | `/agents/{id}/fiche.pdf` |
+| Tableau de bord | `/admin` |
+| Organigramme en mode édition | `/admin/organigramme` |
+| Agents, projets, structures, utilisateurs | `/admin/agents`, `/admin/projets`, `/admin/structures`, `/admin/utilisateurs` |
+| Journal des modifications | `/admin/journal` |
+
+## Tests
+
+```bash
+php artisan test
+```
+
+Les tests utilisent une base SQLite en mémoire (voir `phpunit.xml`) : ils ne touchent pas à la base de développement. Ils couvrent notamment :
+
+- le calcul du taux d'exécution, des retards et des taux consolidés (`tests/Feature/TauxExecutionTest.php`) ;
+- les permissions par rôle (`tests/Feature/Admin/MatriceRolesTest.php`, `AutorisationsTest.php`) ;
+- l'envoi, le remplacement et la suppression des photos (`tests/Feature/Admin/PhotoAgentTest.php`) ;
+- l'organigramme public, le tableau de bord, les exports PDF et le journal.
+
+## Personnalisation
+
+- **Logo du ministère** : remplacer `public/images/logo-ministere.svg` (fichier provisoire).
+- **Avatar par défaut** : `public/images/avatar-defaut.svg` (écran) et `avatar-defaut.png` (PDF).
+- **Couleurs des divisions** : menu *Structures* de l'administration.
+
+## Mise en production (rappel)
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan migrate --force
+php artisan storage:link
+php artisan config:cache && php artisan route:cache && php artisan view:cache
+```
+
+Avec `APP_ENV=production` et `APP_DEBUG=false` dans `.env`, sans `--seed` si les données réelles sont déjà saisies.

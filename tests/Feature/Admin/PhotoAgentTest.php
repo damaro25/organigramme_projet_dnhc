@@ -99,4 +99,39 @@ class PhotoAgentTest extends TestCase
         $this->actingAs($chef)->postJson(route('admin.agents.photo.store', $sien), ['photo' => UploadedFile::fake()->image('a.jpg', 300, 300)])->assertOk();
         $this->actingAs($chef)->postJson(route('admin.agents.photo.store', $autre), ['photo' => UploadedFile::fake()->image('b.jpg', 300, 300)])->assertForbidden();
     }
+
+    public function test_la_photo_est_compressee_en_webp(): void
+    {
+        $agent = Agent::first();
+        $this->actingAs($this->compte('admin@dnh.local'))
+            ->postJson(route('admin.agents.photo.store', $agent), ['photo' => UploadedFile::fake()->image('photo.png', 800, 800)])
+            ->assertOk();
+
+        $agent->refresh();
+        $this->assertStringEndsWith('.webp', $agent->photo);
+        $this->assertSame('image/webp', getimagesizefromstring(Storage::disk('public')->get($agent->photo))['mime']);
+    }
+
+    public function test_la_nouvelle_photo_apparait_aussitot_dans_l_organigramme_public(): void
+    {
+        $agent = Agent::whereHas('structure', fn ($q) => $q->where('sigle', 'SSTD'))->where('est_responsable', true)->firstOrFail();
+        $this->actingAs($this->compte('admin@dnh.local'))
+            ->postJson(route('admin.agents.photo.store', $agent), ['photo' => UploadedFile::fake()->image('a.jpg', 300, 300)])
+            ->assertOk();
+
+        $noeud = collect($this->getJson(route('organigramme.donnees'))->json('noeuds'))->firstWhere('agentId', $agent->id);
+        $this->assertSame($agent->fresh()->photo_url, $noeud['photo']);
+        $this->getJson(route('agents.fiche', $agent))->assertJsonPath('agent.photo', $agent->fresh()->photo_url);
+    }
+
+    public function test_la_consultation_et_les_visiteurs_ne_modifient_aucune_photo(): void
+    {
+        $agent = Agent::first();
+        $fichier = fn () => UploadedFile::fake()->image('a.jpg', 300, 300);
+
+        $this->postJson(route('admin.agents.photo.store', $agent), ['photo' => $fichier()])->assertUnauthorized();
+        $this->actingAs($this->compte('consultation@dnh.local'))
+            ->postJson(route('admin.agents.photo.store', $agent), ['photo' => $fichier()])->assertForbidden();
+        $this->assertNull($agent->fresh()->photo);
+    }
 }
