@@ -50,6 +50,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Un compte désactivé ne peut pas se connecter.
+        if (! Auth::user()->actif) {
+            Auth::guard('web')->logout();
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.inactif'),
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
