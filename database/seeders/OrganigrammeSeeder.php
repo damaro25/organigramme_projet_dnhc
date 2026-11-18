@@ -136,11 +136,11 @@ class OrganigrammeSeeder extends Seeder
         ]);
         $ir = Structure::create([
             'nom' => 'Inspections Régionales', 'sigle' => 'I.R', 'type' => 'service_deconcentre',
-            'parent_id' => $sd->id, 'type_lien' => 'fonctionnel', 'couleur' => $c['deconcentre'], 'ordre' => 1,
+            'parent_id' => $sd->id, 'couleur' => $c['deconcentre'], 'ordre' => 1,
         ]);
         Structure::create([
             'nom' => 'Directions Préfectorales', 'sigle' => 'D.P', 'type' => 'service_deconcentre',
-            'parent_id' => $ir->id, 'type_lien' => 'fonctionnel', 'couleur' => $c['deconcentre'], 'ordre' => 1,
+            'parent_id' => $ir->id, 'couleur' => $c['deconcentre'], 'ordre' => 1,
         ]);
     }
 
