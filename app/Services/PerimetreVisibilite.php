@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
  * de l'organigramme placée sous lui (ses subordonnés, et leurs subordonnés…).
  * Les branches supérieures et voisines lui sont invisibles.
  *
- * - L'administrateur voit tout.
+ * - L'administrateur et la Direction (DNH et DNAH) voient tout.
  * - Le titulaire du nœud racine (Directeur National) voit tout, puisque tout est sous lui.
  * - Un compte sans fiche agent, ou dont la fiche est désactivée, ne voit rien.
  *
@@ -38,7 +38,7 @@ class PerimetreVisibilite
 
     public function __construct(private ?User $user, OrganigrammeBuilder $builder)
     {
-        $this->global = (bool) $user?->estAdministrateur();
+        $this->global = (bool) ($user?->estAdministrateur() || $user?->hasRole(User::ROLE_DIRECTION));
         $this->noeuds = $builder->construirePour($user?->agent, $this->global);
 
         if ($this->global || $this->noeuds === []) {

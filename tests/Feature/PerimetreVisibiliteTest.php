@@ -12,7 +12,7 @@ use Tests\TestCase;
 
 /**
  * Un compte ne voit que sa fiche et la branche de l'organigramme placée sous lui ;
- * jamais les branches supérieures ou voisines. L'administrateur voit tout.
+ * jamais les branches supérieures ou voisines. L'administrateur et la Direction voient tout.
  */
 class PerimetreVisibiliteTest extends TestCase
 {
@@ -65,6 +65,18 @@ class PerimetreVisibiliteTest extends TestCase
 
         $this->assertTrue($user->perimetre()->estGlobal());
         $this->assertSame('DNH', $this->noeuds($user)->whereNull('parentId')->first()['sigle']);
+    }
+
+    public function test_la_direction_nationale_adjointe_voit_tout(): void
+    {
+        $user = $this->compte(User::ROLE_DIRECTION, 'DNAH');
+        $noeuds = $this->noeuds($user);
+
+        $this->assertTrue($user->perimetre()->estGlobal());
+        $this->assertSame('DNH', $noeuds->whereNull('parentId')->first()['sigle']);
+        $this->assertTrue($noeuds->contains('sigle', 'DAMP'));
+        $this->actingAs($user)->getJson(route('agents.fiche', $this->titulaire('DNH')))->assertOk();
+        $this->actingAs($user)->get('/organigramme.pdf')->assertOk();
     }
 
     public function test_un_chef_de_division_ne_voit_que_sa_division(): void
