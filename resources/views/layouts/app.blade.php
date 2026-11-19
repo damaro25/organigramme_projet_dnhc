@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($titre) ? $titre.' – ' : '' }}Administration – DNH</title>
+    @include('partials.icone-onglet')
     @vite(['resources/css/app.css', 'resources/js/admin.js'])
     @livewireStyles
 </head>
@@ -32,7 +33,7 @@
         <a href="{{ route('organigramme') }}" class="flex items-center gap-3 border-b border-white/10 px-4 py-4">
             {{-- Armoiries sur fond blanc, avec une marge libre (charte graphique). --}}
             <span class="shrink-0 rounded bg-white p-1.5">
-                <img src="{{ asset(collect(['images/armoiries.svg', 'images/armoiries.png'])->first(fn ($f) => file_exists(public_path($f))) ?? 'images/logo-ministere.svg') }}" alt="Armoiries de la République de Guinée" class="h-9 w-auto object-contain">
+                <img src="{{ \App\Support\Armoiries::url() }}" alt="Armoiries de la République de Guinée" class="h-9 w-auto object-contain">
             </span>
             <span class="leading-tight"><span class="block text-[10px] uppercase tracking-wider text-dnh-200">République de Guinée</span><span class="block text-sm font-bold">DNH</span><span class="block text-xs text-dnh-200">Administration</span></span>
         </a>

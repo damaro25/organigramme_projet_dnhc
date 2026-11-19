@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $titre ?? 'Organigramme' }} – Direction Nationale des Hydrocarbures</title>
+    @include('partials.icone-onglet')
     @vite(['resources/css/app.css', 'resources/js/organigramme.js'])
 </head>
 <body class="h-full bg-fond font-sans text-slate-800 antialiased">

@@ -14,14 +14,11 @@
 --}}
 @props(['variante' => 'entete'])
 
-@php
-    $armoiries = collect(['images/armoiries.svg', 'images/armoiries.png'])
-        ->first(fn ($f) => file_exists(public_path($f))) ?? 'images/logo-ministere.svg';
-@endphp
+@php $armoiries = \App\Support\Armoiries::url(); @endphp
 
 @if ($variante === 'centre')
     <div {{ $attributes->merge(['class' => 'flex flex-col items-center text-center']) }}>
-        <img src="{{ asset($armoiries) }}" alt="Armoiries de la République de Guinée" class="h-20 w-auto object-contain">
+        <img src="{{ $armoiries }}" alt="Armoiries de la République de Guinée" class="h-20 w-auto object-contain">
         <x-tricolore class="mt-4 w-24" />
         <p class="mt-3 text-sm font-bold uppercase tracking-wider text-slate-900">République de Guinée</p>
         <p class="text-xs italic text-slate-600">Travail – Justice – Solidarité</p>
@@ -31,7 +28,7 @@
 @else
     <div {{ $attributes->merge(['class' => 'flex min-w-0 items-center gap-3']) }}>
         <span class="shrink-0 bg-white p-1.5">
-            <img src="{{ asset($armoiries) }}" alt="Armoiries de la République de Guinée" class="h-11 w-auto object-contain">
+            <img src="{{ $armoiries }}" alt="Armoiries de la République de Guinée" class="h-11 w-auto object-contain">
         </span>
         <span class="min-w-0 leading-tight">
             <span class="block truncate text-[11px] font-bold uppercase tracking-wider text-slate-900">

@@ -27,16 +27,10 @@ class ExportPdfService
     }
 
     /** Photo de l'agent en data URI JPEG, ou l'avatar par défaut. */
-    /** Armoiries officielles si elles ont été déposées dans public/images, sinon l'emplacement du logo. */
+    /** Armoiries officielles si elles ont été déposées dans public/images, sinon l'emplacement provisoire. */
     public static function armoiries(): string
     {
-        foreach (['images/armoiries.png', 'images/armoiries.svg'] as $fichier) {
-            if (is_file(public_path($fichier))) {
-                return public_path($fichier);
-            }
-        }
-
-        return public_path('images/logo-ministere.svg');
+        return public_path(\App\Support\Armoiries::image());
     }
 
     public function photo(?Agent $agent, bool $miniature = true, int $taille = 96): string

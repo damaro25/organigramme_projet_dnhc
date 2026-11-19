@@ -149,7 +149,7 @@ L'interface applique la [charte graphique du Gouvernement de la République de G
 
 ## Personnalisation
 
-- **Armoiries** : déposer le fichier officiel fourni par la Cellule de Communication du Gouvernement dans `public/images/armoiries.png` (ou `armoiries.svg`). Il remplace automatiquement l'emplacement provisoire `public/images/logo-ministere.svg`, à l'écran comme dans les PDF. La charte interdit de déformer, incliner, recolorer ou ombrer les armoiries, et d'écrire au-dessus ou en dessous.
+- **Armoiries** : déposer le fichier officiel fourni par la Cellule de Communication du Gouvernement dans `public/images/armoiries.png` (ou `armoiries.svg`). Il remplace automatiquement l'emplacement provisoire `public/images/logo-ministere.svg` dans l'en-tête, dans les PDF et dans l'icône des onglets du navigateur (en attendant, l'onglet affiche le drapeau national : `public/images/icone-drapeau.svg` et `public/favicon.ico`). La charte interdit de déformer, incliner, recolorer ou ombrer les armoiries, et d'écrire au-dessus ou en dessous.
 - **Avatar par défaut** : `public/images/avatar-defaut.svg` (écran) et `avatar-defaut.png` (PDF).
 - **Couleurs des divisions** : menu *Structures* de l'administration. Une base déjà remplie garde ses anciennes couleurs : les modifier dans ce menu, ou relancer `php artisan migrate:fresh --seed` sur une base de démonstration.
 
