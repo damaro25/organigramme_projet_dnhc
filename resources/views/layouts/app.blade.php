@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($titre) ? $titre.' – ' : '' }}Administration – DNH</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/admin.js'])
     @livewireStyles
 </head>
@@ -30,9 +28,13 @@
     <div x-show="menu" x-cloak class="fixed inset-0 z-30 bg-slate-900/40 lg:hidden" @click="menu = false"></div>
     <aside :class="menu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
            class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-dnh-900 text-white transition-transform lg:sticky lg:top-0 lg:h-screen">
+        <x-tricolore />
         <a href="{{ route('organigramme') }}" class="flex items-center gap-3 border-b border-white/10 px-4 py-4">
-            <img src="{{ asset('images/logo-ministere.svg') }}" alt="Logo du Ministère" class="h-10 w-10 rounded-full bg-white p-0.5">
-            <span class="leading-tight"><span class="block text-sm font-bold">DNH</span><span class="block text-xs text-dnh-200">Administration</span></span>
+            {{-- Armoiries sur fond blanc, avec une marge libre (charte graphique). --}}
+            <span class="shrink-0 rounded bg-white p-1.5">
+                <img src="{{ asset(collect(['images/armoiries.svg', 'images/armoiries.png'])->first(fn ($f) => file_exists(public_path($f))) ?? 'images/logo-ministere.svg') }}" alt="Armoiries de la République de Guinée" class="h-9 w-auto object-contain">
+            </span>
+            <span class="leading-tight"><span class="block text-[10px] uppercase tracking-wider text-dnh-200">République de Guinée</span><span class="block text-sm font-bold">DNH</span><span class="block text-xs text-dnh-200">Administration</span></span>
         </a>
         <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Menu d'administration">
             @foreach ($menu as [$libelle, $route, $motif, $visible, $icone])
@@ -88,6 +90,8 @@
             @endif
             {{ $slot }}
         </main>
+
+        <x-pied-officiel class="lg:px-8" />
     </div>
 </div>
 

@@ -137,11 +137,21 @@ Les tests utilisent une base SQLite en mémoire (voir `phpunit.xml`) : ils ne to
 - l'envoi, le remplacement et la suppression des photos (`tests/Feature/Admin/PhotoAgentTest.php`) ;
 - l'organigramme public, le tableau de bord, les exports PDF et le journal.
 
+## Charte graphique
+
+L'interface applique la [charte graphique du Gouvernement de la République de Guinée](https://dgd.gov.gn/wp-content/uploads/2023/10/CHARTE-GRAPHIQUE-RG.pdf) (Cellule de Communication du Gouvernement, 2021) :
+
+- **Couleurs** : rouge `#ce1126`, jaune `#fcd116`, vert `#009460` (classes Tailwind `guinee-*`), avec du blanc et du gris. La couleur principale de l'application (`dnh-*`, `tailwind.config.js`) est le vert national et ses nuances foncées.
+- **Police** : Century Gothic, installée avec Windows et Microsoft Office. Sur un poste qui ne l'a pas, le navigateur prend une police proche (URW Gothic) ou la police système. Les PDF restent en DejaVu Sans, la seule police fournie avec dompdf qui couvre tous les accents.
+- **En-tête** : armoiries en haut à gauche sur fond blanc, « République de Guinée », la devise « Travail – Justice – Solidarité », le Ministère et la Direction, puis la bande tricolore à bandes égales (`resources/views/components/bandeau-republique.blade.php` et `tricolore.blade.php`). Les PDF reprennent la bande et la devise.
+- **Pied de page** : lien vers le portail officiel du Gouvernement, `gouvernement.gov.gn`.
+- **Divisions** (données de démonstration) : Planification / Économie en vert, Aval en rouge, Amont en jaune foncé (`#a37f00`, plus lisible que le jaune du drapeau en texte sur fond blanc).
+
 ## Personnalisation
 
-- **Logo du ministère** : remplacer `public/images/logo-ministere.svg` (fichier provisoire).
+- **Armoiries** : déposer le fichier officiel fourni par la Cellule de Communication du Gouvernement dans `public/images/armoiries.png` (ou `armoiries.svg`). Il remplace automatiquement l'emplacement provisoire `public/images/logo-ministere.svg`, à l'écran comme dans les PDF. La charte interdit de déformer, incliner, recolorer ou ombrer les armoiries, et d'écrire au-dessus ou en dessous.
 - **Avatar par défaut** : `public/images/avatar-defaut.svg` (écran) et `avatar-defaut.png` (PDF).
-- **Couleurs des divisions** : menu *Structures* de l'administration.
+- **Couleurs des divisions** : menu *Structures* de l'administration. Une base déjà remplie garde ses anciennes couleurs : les modifier dans ce menu, ou relancer `php artisan migrate:fresh --seed` sur une base de démonstration.
 
 ## Mise en production (rappel)
 

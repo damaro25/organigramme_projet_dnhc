@@ -205,6 +205,6 @@ Alpine.data('organigramme', ({ urlDonnees, urlFiche, admin = false }) => ({
 
     couleurBarre: (c) => ({ rouge: 'bg-red-600', orange: 'bg-orange-500', vert: 'bg-green-600' }[c] ?? 'bg-slate-400'),
     couleurTexte: (c) => ({ rouge: 'text-red-700', orange: 'text-orange-600', vert: 'text-green-700' }[c] ?? 'text-slate-500'),
-    classeStatut: (s) => ({ non_demarre: 'bg-slate-100 text-slate-700', en_cours: 'bg-blue-100 text-blue-800', termine: 'bg-green-100 text-green-800', suspendu: 'bg-amber-100 text-amber-800' }[s] ?? ''),
+    classeStatut: (s) => ({ non_demarre: 'bg-slate-100 text-slate-700', en_cours: 'bg-dnh-100 text-dnh-800', termine: 'bg-green-100 text-green-800', suspendu: 'bg-amber-100 text-amber-800' }[s] ?? ''),
 }));
 }
