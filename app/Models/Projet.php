@@ -134,29 +134,43 @@ class Projet extends Model
     protected function tauxExecution(): Attribute
     {
         return Attribute::get(function () {
-            if (array_key_exists('poids_total', $this->attributes)) {
-                $total = (int) $this->attributes['poids_total'];
-                $termine = (int) ($this->attributes['poids_termine'] ?? 0);
-            } elseif ($this->relationLoaded('etapes')) {
-                $total = (int) $this->etapes->sum('poids');
-                $termine = (int) $this->etapes->where('est_terminee', true)->sum('poids');
-            } else {
-                $sommes = $this->etapes()->toBase()->selectRaw(
-                    'COALESCE(SUM(poids),0) AS total, COALESCE(SUM(CASE WHEN est_terminee = 1 THEN poids ELSE 0 END),0) AS termine'
-                )->first();
-                $total = (int) $sommes->total;
-                $termine = (int) $sommes->termine;
-            }
+            [$total, $termine] = $this->sommesPoids();
 
             return $total > 0 ? (int) round($termine / $total * 100) : 0;
         });
     }
 
+    /**
+     * En retard : échéance dépassée et au moins une étape non terminée (ou aucune étape).
+     * La comparaison se fait sur les poids exacts et non sur le taux arrondi : un projet
+     * à 99,6 % s'affiche « 100 % » mais reste en retard, comme dans scopeEnRetard().
+     */
     protected function estEnRetard(): Attribute
     {
-        return Attribute::get(fn () => $this->date_fin_prevue !== null
-            && $this->date_fin_prevue->lt(today())
-            && $this->taux_execution < 100);
+        return Attribute::get(function () {
+            if ($this->date_fin_prevue === null || ! $this->date_fin_prevue->lt(today())) {
+                return false;
+            }
+            [$total, $termine] = $this->sommesPoids();
+
+            return $total === 0 || $termine < $total;
+        });
+    }
+
+    /** @return array{0: int, 1: int} [somme des poids, somme des poids des étapes terminées] */
+    private function sommesPoids(): array
+    {
+        if (array_key_exists('poids_total', $this->attributes)) {
+            return [(int) $this->attributes['poids_total'], (int) ($this->attributes['poids_termine'] ?? 0)];
+        }
+        if ($this->relationLoaded('etapes')) {
+            return [(int) $this->etapes->sum('poids'), (int) $this->etapes->where('est_terminee', true)->sum('poids')];
+        }
+        $sommes = $this->etapes()->toBase()->selectRaw(
+            'COALESCE(SUM(poids),0) AS total, COALESCE(SUM(CASE WHEN est_terminee = 1 THEN poids ELSE 0 END),0) AS termine'
+        )->first();
+
+        return [(int) $sommes->total, (int) $sommes->termine];
     }
 
     /** Couleur de la barre de progression : rouge < 30 %, orange 30–70 %, vert > 70 %. */

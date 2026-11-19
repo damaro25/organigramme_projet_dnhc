@@ -79,6 +79,12 @@ class TauxExecutionTest extends TestCase
 
         $this->assertTrue($this->projet([[1, true], [1, false]], $passe)->fresh()->est_en_retard);
         $this->assertFalse($this->projet([[1, true]], $passe)->fresh()->est_en_retard, 'terminé à 100 %');
+
+        // 199 / 200 = 99,5 % s'affiche « 100 % » une fois arrondi, mais une étape reste à faire.
+        $presqueFini = $this->projet([[100, true], [99, true], [1, false]], $passe)->fresh();
+        $this->assertSame(100, $presqueFini->taux_execution);
+        $this->assertTrue($presqueFini->est_en_retard, 'taux arrondi à 100 % mais étape restante');
+        $this->assertTrue(Projet::enRetard()->whereKey($presqueFini->id)->exists(), 'cohérent avec scopeEnRetard');
         $this->assertFalse($this->projet([[1, false]], ['date_debut' => now()->subMonth(), 'date_fin_prevue' => today()])->fresh()->est_en_retard, 'échéance aujourd’hui');
         $this->assertFalse($this->projet([[1, false]], ['date_fin_prevue' => null])->fresh()->est_en_retard, 'sans échéance');
     }

@@ -14,12 +14,17 @@ use Illuminate\Support\Str;
  */
 class OrganigrammeSeeder extends Seeder
 {
+    /**
+     * Charte graphique du Gouvernement : rouge, jaune, vert, blanc et gris.
+     * Les divisions reprennent les trois couleurs nationales (le jaune est foncé
+     * pour rester lisible en texte sur fond blanc).
+     */
     public const COULEURS = [
-        'direction' => '#1e3a8a',
-        'planification' => '#0891b2',
-        'aval' => '#d97706',
-        'amont' => '#059669',
-        'deconcentre' => '#64748b',
+        'direction' => '#006a45',
+        'planification' => '#009460',
+        'aval' => '#ce1126',
+        'amont' => '#a37f00',
+        'deconcentre' => '#6b7280',
     ];
 
     public const DIVISIONS = [
@@ -101,7 +106,7 @@ class OrganigrammeSeeder extends Seeder
         foreach (self::SERVICES_RATTACHES as $i => [$nom, $sigle, $groupe, $poste, $responsable]) {
             $service = Structure::create([
                 'nom' => $nom, 'sigle' => $sigle, 'type' => 'service_rattache', 'groupe' => $groupe,
-                'parent_id' => $dnh->id, 'couleur' => $groupe === 'appui_technique' ? '#e0f2fe' : '#2563eb',
+                'parent_id' => $dnh->id, 'couleur' => $groupe === 'appui_technique' ? '#f3f4f6' : '#006a45',
                 'ordre' => $i + 1,
             ]);
             $this->agent($service, $poste, $agentDnh, $responsable);

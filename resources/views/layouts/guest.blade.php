@@ -7,24 +7,22 @@
 
         <title>Connexion – Direction Nationale des Hydrocarbures</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
         <!-- Scripts -->
+        @include('partials.icone-onglet')
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-slate-100">
-            <a href="/" class="flex flex-col items-center gap-2 text-center">
-                <img src="{{ asset('images/logo-ministere.svg') }}" alt="Logo du Ministère" class="h-20 w-20">
-                <span class="text-xs uppercase tracking-wider text-slate-500">Ministère de l'Assainissement, de l'Hydraulique et des Hydrocarbures</span>
-                <span class="text-lg font-bold text-dnh-900">Direction Nationale des Hydrocarbures</span>
+        <x-tricolore class="fixed inset-x-0 top-0 z-10" />
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-10 pb-6 sm:pt-6 bg-fond">
+            <a href="/">
+                <x-bandeau-republique variante="centre" />
             </a>
 
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
                 {{ $slot }}
             </div>
+
+            <a href="https://gouvernement.gov.gn" target="_blank" rel="noopener" class="mt-6 text-xs text-slate-500 hover:text-dnh-700 hover:underline">Portail officiel du Gouvernement ↗</a>
         </div>
     </body>
 </html>

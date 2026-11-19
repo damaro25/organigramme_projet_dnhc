@@ -30,9 +30,10 @@
     $hex = fn ($t) => \App\Services\ExportPdfService::couleurHex($t);
 @endphp
 
+@include('pdf._republique')
 <table class="entete">
     <tr>
-        <td style="width: 18mm"><img src="{{ public_path('images/logo-ministere.svg') }}" style="height: 14mm" alt=""></td>
+        <td style="width: 18mm"><img src="{{ \App\Services\ExportPdfService::armoiries() }}" style="height: 14mm" alt=""></td>
         <td>
             <div class="titre">Organigramme de la Direction Nationale des Hydrocarbures</div>
             <div class="sous-titre">Personnel, structures et taux moyen d'exécution des projets</div>
@@ -50,10 +51,10 @@
     $carte = function (?\App\Models\Agent $agent, $structure, bool $grande = false) use ($export, $hex) {
         $c = $structure->couleur_effective;
         $claire = \App\Services\ExportPdfService::estClaire($c);
-        $bord = $claire ? '#0284c7' : $c;
+        $bord = $claire ? '#6b7280' : $c;
         $html = '<table class="carte'.($grande ? ' grande' : '').'" style="border-top-color: '.$bord.'; width: 100%"><tr>';
         $html .= '<td style="width: '.($grande ? 19 : 15).'mm"><img src="'.$export->photo($agent).'" alt=""></td><td>';
-        $html .= '<span class="sigle" style="background: '.$c.'; color: '.($claire ? '#0c4a6e' : '#fff').'">'.e($structure->libelle_court).'</span><br>';
+        $html .= '<span class="sigle" style="background: '.$c.'; color: '.($claire ? '#1f2937' : '#fff').'">'.e($structure->libelle_court).'</span><br>';
         if ($agent) {
             $html .= '<span class="nom">'.e($agent->nom_complet).'</span><br><span class="poste">'.e($agent->poste).'</span>';
             $t = $agent->taux_moyen;

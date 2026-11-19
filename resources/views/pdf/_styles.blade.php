@@ -3,9 +3,13 @@
     * { font-family: "DejaVu Sans", sans-serif; }
     body { font-size: 8pt; color: #1e293b; margin: 0; }
     table { border-collapse: collapse; }
-    .entete { width: 100%; border-bottom: 2px solid #1e3a8a; margin-bottom: 6mm; }
+    .tricolore { width: 100%; height: 1.5mm; margin-bottom: 3mm; }
+    .tricolore td { padding: 0; height: 1.5mm; width: 33.33%; }
+    .republique { font-size: 7pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5pt; color: #1f2937; }
+    .republique span { font-weight: normal; font-style: italic; text-transform: none; letter-spacing: 0; color: #6b7280; }
+    .entete { width: 100%; border-bottom: 2px solid #006a45; margin-bottom: 6mm; }
     .entete td { vertical-align: middle; padding-bottom: 2mm; }
-    .entete .titre { font-size: 15pt; font-weight: bold; color: #1e3a8a; }
+    .entete .titre { font-size: 15pt; font-weight: bold; color: #006a45; }
     .entete .sous-titre { font-size: 9pt; color: #475569; }
     .entete .date { text-align: right; font-size: 8pt; color: #64748b; }
     .pied { position: fixed; bottom: -9mm; left: 0; right: 0; font-size: 7pt; color: #94a3b8; text-align: center; }
