@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PerimetreVisibilite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -68,6 +69,17 @@ class User extends Authenticatable
         }
 
         return $this->agent->structure->descendantIds();
+    }
+
+    private ?PerimetreVisibilite $perimetreCalcule = null;
+
+    /**
+     * Ce que le compte peut voir : sa fiche et la branche de l'organigramme sous lui
+     * (tout pour l'administrateur). Calculé une fois par instance.
+     */
+    public function perimetre(): PerimetreVisibilite
+    {
+        return $this->perimetreCalcule ??= PerimetreVisibilite::pour($this);
     }
 
     /** Vrai si l'utilisateur est affecté au projet via sa fiche agent. */

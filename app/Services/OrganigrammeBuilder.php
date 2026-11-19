@@ -107,6 +107,70 @@ class OrganigrammeBuilder
         return $noeuds;
     }
 
+    /**
+     * Nœuds visibles par un compte : tout l'organigramme si $global, sinon l'agent du compte
+     * et la branche placée sous lui, l'agent devenant la racine affichée. Aucune branche
+     * supérieure ou voisine n'est renvoyée.
+     */
+    public function construirePour(?Agent $agent, bool $global = false): array
+    {
+        $complet = $this->construire();
+        if ($global) {
+            return $complet;
+        }
+        if (! $agent || ! $agent->actif || $complet === []) {
+            return [];
+        }
+
+        $racineId = 'a'.$agent->id;
+        $parNoeud = collect($complet)->keyBy('id');
+
+        // Agent placé dans la hiérarchie principale : son sous-arbre.
+        if ($parNoeud->has($racineId)) {
+            if ($parNoeud[$racineId]['estRacine'] ?? false) {
+                return $complet;
+            }
+
+            $enfants = collect($complet)->groupBy('parentId');
+            $branche = [];
+            $pile = [$racineId];
+            while ($pile) {
+                $id = array_pop($pile);
+                $noeud = $parNoeud[$id];
+                if ($id === $racineId) {
+                    $noeud['parentId'] = null;
+                    $noeud['_expanded'] = true;
+                }
+                $branche[] = $noeud;
+                foreach ($enfants->get($id, []) as $enfant) {
+                    $pile[] = $enfant['id'];
+                }
+            }
+
+            return $branche;
+        }
+
+        // Agent d'un service rattaché (dessiné à côté de la racine) : le titulaire voit les
+        // agents de son service, un agent ne voit que lui-même.
+        $structure = $this->structures->get($agent->structure_id);
+        if (! $structure) {
+            return [];
+        }
+        $membres = $agent->est_responsable
+            ? Agent::query()->actifs()->whereIn('structure_id', $structure->descendantIds())
+                ->with(['projets' => fn ($q) => $q->nonArchives()->avecSommesPoids()])
+                ->orderByDesc('est_responsable')->orderBy('ordre')->orderBy('nom')->get()
+            : collect([$agent->load(['projets' => fn ($q) => $q->nonArchives()->avecSommesPoids()])]);
+
+        return $membres->map(function (Agent $a) use ($agent, $racineId) {
+            $noeud = $this->noeudAgent($a, $this->structures->get($a->structure_id));
+            $noeud['parentId'] = $a->id === $agent->id ? null : $racineId;
+            $noeud['_expanded'] = true;
+
+            return $noeud;
+        })->values()->all();
+    }
+
     private function noeudAgent(Agent $agent, Structure $structure): array
     {
         $division = $this->division($structure);

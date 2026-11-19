@@ -12,9 +12,10 @@ class ProjetPolicy
         return $user->can('acceder_admin');
     }
 
+    /** Consultation : projets de la branche du compte, ou auxquels un agent de sa branche est affecté. */
     public function view(User $user, Projet $projet): bool
     {
-        return $user->can('acceder_admin');
+        return $user->can('acceder_admin') && $user->perimetre()->voitProjet($projet);
     }
 
     public function create(User $user): bool
@@ -25,7 +26,9 @@ class ProjetPolicy
     /** Un chef modifie les projets de sa structure et de ses sous-structures. */
     public function update(User $user, Projet $projet): bool
     {
-        return $user->can('gerer_projets') && in_array($projet->structure_id, $user->structuresGerees(), true);
+        return $user->can('gerer_projets')
+            && in_array($projet->structure_id, $user->structuresGerees(), true)
+            && $user->perimetre()->voitProjet($projet);
     }
 
     public function delete(User $user, Projet $projet): bool
@@ -46,7 +49,7 @@ class ProjetPolicy
     /** Validation par la direction (DNH / DNAH). */
     public function valider(User $user, Projet $projet): bool
     {
-        return $user->can('valider_projets');
+        return $user->can('valider_projets') && $user->perimetre()->voitProjet($projet);
     }
 
     /** Ajout, modification, suppression et tri des étapes. */
@@ -62,6 +65,6 @@ class ProjetPolicy
             return false;
         }
 
-        return $this->update($user, $projet) || $user->estAffecteAuProjet($projet);
+        return $this->update($user, $projet) || ($user->estAffecteAuProjet($projet) && $user->perimetre()->voitProjet($projet));
     }
 }

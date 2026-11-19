@@ -20,6 +20,7 @@ class AgentRequest extends FormRequest
     public function rules(): array
     {
         $agent = $this->route('agent');
+        $perimetre = $this->user()->perimetre();
         $structures = $this->user()->estAdministrateur()
             ? Rule::exists('structures', 'id')
             : Rule::in($this->user()->structuresGerees());
@@ -29,7 +30,9 @@ class AgentRequest extends FormRequest
             'prenom' => ['required', 'string', 'max:100'],
             'poste' => ['required', 'string', 'max:255'],
             'structure_id' => ['required', 'integer', $structures],
-            'superieur_id' => ['nullable', 'integer', Rule::exists('agents', 'id')->where('actif', true), Rule::notIn(array_filter([$agent?->id]))],
+            'superieur_id' => array_filter(['nullable', 'integer', Rule::exists('agents', 'id')->where('actif', true), Rule::notIn(array_filter([$agent?->id])),
+                // Hors administrateur : un supérieur de la branche du compte (ou le supérieur actuel).
+                $perimetre->estGlobal() ? null : Rule::in(array_filter([...$perimetre->agentIds(), $agent?->superieur_id]))]),
             'email' => ['nullable', 'email', 'max:255', Rule::unique('agents', 'email')->ignore($agent)],
             'telephone' => ['nullable', 'string', 'max:30', 'regex:/^[0-9 +().-]+$/'],
             'est_responsable' => ['boolean'],
@@ -42,6 +45,7 @@ class AgentRequest extends FormRequest
         return [
             'structure_id.in' => 'Vous ne pouvez rattacher un agent qu\'à votre structure ou à l\'une de ses sous-structures.',
             'superieur_id.not_in' => 'Un agent ne peut pas être son propre supérieur.',
+            'superieur_id.in' => 'Le supérieur doit faire partie de votre branche de l\'organigramme.',
             'telephone.regex' => 'Le numéro de téléphone contient des caractères non autorisés.',
         ];
     }

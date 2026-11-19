@@ -58,13 +58,13 @@ class MatriceRolesTest extends TestCase
         }
     }
 
-    public function test_un_visiteur_ne_voit_que_la_partie_publique(): void
+    public function test_un_visiteur_doit_se_connecter_pour_tout_voir(): void
     {
         $this->seed(DatabaseSeeder::class);
 
-        $this->get('/')->assertOk();
-        $this->get('/organigramme/donnees')->assertOk();
-        $this->get('/organigramme.pdf')->assertOk();
+        $this->get('/')->assertRedirect('/login');
+        $this->get('/organigramme/donnees')->assertRedirect('/login');
+        $this->get('/organigramme.pdf')->assertRedirect('/login');
         foreach (self::PAGES as $url) {
             $this->get($url)->assertRedirect('/login');
         }

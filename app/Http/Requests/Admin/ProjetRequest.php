@@ -20,6 +20,8 @@ class ProjetRequest extends FormRequest
 
     public function rules(): array
     {
+        $projet = $this->route('projet');
+        $perimetre = $this->user()->perimetre();
         $structures = $this->user()->estAdministrateur()
             ? Rule::exists('structures', 'id')
             : Rule::in($this->user()->structuresGerees());
@@ -32,7 +34,9 @@ class ProjetRequest extends FormRequest
             'date_fin_prevue' => ['nullable', 'date', 'after_or_equal:date_debut'],
             'statut' => ['required', Rule::enum(StatutProjet::class)],
             'affectations' => ['array'],
-            'affectations.*.agent_id' => ['required', 'integer', 'distinct', Rule::exists('agents', 'id')],
+            'affectations.*.agent_id' => array_filter(['required', 'integer', 'distinct', Rule::exists('agents', 'id'),
+                // Hors administrateur : des agents de la branche du compte (ou déjà affectés au projet).
+                $perimetre->estGlobal() ? null : Rule::in([...$perimetre->agentIds(), ...($projet?->agents()->pluck('agents.id')->all() ?? [])])]),
             'affectations.*.role' => ['required', Rule::enum(RoleProjet::class)],
             'pieces_jointes' => ['array', 'max:10'],
             'pieces_jointes.*' => ['file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,odt,ods', 'max:10240'],
@@ -43,6 +47,7 @@ class ProjetRequest extends FormRequest
     {
         return [
             'structure_id.in' => 'Vous ne pouvez créer un projet que dans votre structure ou l\'une de ses sous-structures.',
+            'affectations.*.agent_id.in' => 'Vous ne pouvez affecter que des agents de votre branche de l\'organigramme.',
             'date_fin_prevue.after_or_equal' => 'L\'échéance doit être postérieure ou égale à la date de début.',
             'pieces_jointes.*.mimes' => 'Les pièces jointes doivent être des documents PDF, Word, Excel ou PowerPoint.',
             'pieces_jointes.*.max' => 'Chaque pièce jointe ne doit pas dépasser 10 Mo.',

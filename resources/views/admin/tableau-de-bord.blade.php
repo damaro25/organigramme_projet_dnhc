@@ -2,7 +2,9 @@
     <x-slot name="header">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <h1 class="titre-page">Tableau de bord</h1>
-            <a href="{{ route('organigramme.pdf') }}" class="btn-secondaire py-1.5">⤓ Organigramme en PDF</a>
+            @if ($peutExporterOrganigramme)
+                <a href="{{ route('organigramme.pdf') }}" class="btn-secondaire py-1.5">⤓ Organigramme en PDF</a>
+            @endif
         </div>
     </x-slot>
 

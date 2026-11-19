@@ -29,6 +29,7 @@ class EtapesProjet extends Component
 
     public function mount(Projet $projet): void
     {
+        $this->authorize('view', $projet);
         $this->projet = $projet;
         $this->chargerCochage();
     }

@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Agent;
+use App\Models\Etape;
+use App\Models\Projet;
+use App\Models\Structure;
 use App\Models\User;
 use App\Services\JournalService;
 use Illuminate\Http\Request;
@@ -22,8 +26,17 @@ class JournalController extends Controller
             'au' => ['nullable', 'date', 'after_or_equal:du'],
         ]);
 
+        $perimetre = $request->user()->perimetre();
+
         $activites = Activity::query()
             ->with(['causer', 'subject'])
+            // Hors vue globale : seulement les modifications portant sur la branche du compte.
+            ->when(! $perimetre->estGlobal(), fn ($q) => $q->where(fn ($w) => $w
+                ->where(fn ($x) => $x->where('subject_type', Agent::class)->whereIn('subject_id', $perimetre->restreindreAgents(Agent::query())->pluck('agents.id')))
+                ->orWhere(fn ($x) => $x->where('subject_type', Projet::class)->whereIn('subject_id', $perimetre->projetIds()))
+                ->orWhere(fn ($x) => $x->where('subject_type', Etape::class)->whereIn('subject_id', $perimetre->etapeIds()))
+                ->orWhere(fn ($x) => $x->where('subject_type', Structure::class)->whereIn('subject_id', $perimetre->structureIds()))
+                ->orWhere(fn ($x) => $x->where('subject_type', User::class)->where('subject_id', $request->user()->id))))
             ->when($filtres['type'] ?? null, fn ($q, $t) => $q->where('log_name', $t))
             ->when($filtres['utilisateur'] ?? null, fn ($q, $u) => $q->where('causer_type', User::class)->where('causer_id', $u))
             ->when($filtres['du'] ?? null, fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
@@ -37,7 +50,9 @@ class JournalController extends Controller
             'journal' => $journal,
             'filtres' => $filtres,
             'types' => JournalService::TYPES,
-            'utilisateurs' => User::query()->orderBy('name')->get(['id', 'name']),
+            'utilisateurs' => User::query()
+                ->when(! $perimetre->estGlobal(), fn ($q) => $q->whereIn('agent_id', $perimetre->agentIds()))
+                ->orderBy('name')->get(['id', 'name']),
         ]);
     }
 }

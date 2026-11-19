@@ -16,6 +16,9 @@ class OrganigrammePublicTest extends TestCase
     {
         parent::setUp();
         $this->seed(DatabaseSeeder::class);
+
+        // L'organigramme est réservé aux comptes connectés ; l'administrateur le voit en entier.
+        $this->actingAs(\App\Models\User::role(\App\Models\User::ROLE_ADMIN)->firstOrFail());
     }
 
     public function test_la_page_publique_s_affiche(): void

@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Agent;
 use App\Models\Projet;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /** Données du panneau latéral ouvert au clic sur une photo. */
 class FicheAgentController extends Controller
 {
-    public function show(Agent $agent): JsonResponse
+    public function show(Request $request, Agent $agent): JsonResponse
     {
         abort_unless($agent->actif, 404);
+        // Une fiche hors de la branche du compte est introuvable, sans révéler qu'elle existe.
+        abort_unless($request->user()->perimetre()->voitAgent($agent), 404);
 
         $agent->load(['structure.parent', 'projets' => fn ($q) => $q->nonArchives()->with('etapes', 'structure')->orderBy('date_fin_prevue')]);
 

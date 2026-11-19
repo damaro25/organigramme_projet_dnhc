@@ -23,11 +23,14 @@ class TableauDeBordController extends Controller
             'statut' => ['nullable', Rule::enum(StatutProjet::class)],
         ]);
 
-        return view('admin.tableau-de-bord', $service->calculer($filtres) + [
+        $perimetre = $request->user()->perimetre();
+
+        return view('admin.tableau-de-bord', $service->calculer($filtres, $perimetre) + [
             'filtres' => $filtres,
-            'listeDivisions' => Structure::deType(TypeStructure::Division)->ordonne()->get(),
-            'listeSections' => Structure::deType(TypeStructure::Section)->ordonne()->get(),
-            'listeAgents' => Agent::actifs()->orderBy('nom')->get(),
+            'listeDivisions' => $perimetre->restreindreStructures(Structure::deType(TypeStructure::Division))->ordonne()->get(),
+            'listeSections' => $perimetre->restreindreStructures(Structure::deType(TypeStructure::Section))->ordonne()->get(),
+            'listeAgents' => $perimetre->restreindreAgents(Agent::actifs())->orderBy('nom')->get(),
+            'peutExporterOrganigramme' => $perimetre->estGlobal(),
             'mesProjets' => $request->user()->agent?->projets()->nonArchives()->avecSommesPoids()->get() ?? collect(),
         ]);
     }

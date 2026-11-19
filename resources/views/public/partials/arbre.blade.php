@@ -38,9 +38,11 @@
             <button type="button" @click="ajuster()" class="btn-outil px-3" title="Ajuster à l'écran">Ajuster</button>
             <button type="button" @click="toutDeplier()" class="btn-outil px-3">Tout déplier</button>
             <button type="button" @click="toutReplier()" class="btn-outil px-3">Replier</button>
-            <a href="{{ route('organigramme.pdf') }}" class="btn-outil px-3" title="Télécharger l'organigramme complet en PDF (A3 paysage)">
+            @if (auth()->user()?->perimetre()->estGlobal())
+                <a href="{{ route('organigramme.pdf') }}" class="btn-outil px-3" title="Télécharger l'organigramme complet en PDF (A3 paysage)">
                 <svg class="mr-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.53 8.72a.75.75 0 00-1.06 1.06l4 4a.75.75 0 001.06 0l4-4a.75.75 0 10-1.06-1.06l-2.72 2.72V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>PDF
             </a>
+            @endif
         </div>
 
         <ul class="ml-auto hidden flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 lg:flex" aria-label="Légende">

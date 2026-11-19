@@ -16,6 +16,9 @@ class ExportPdfTest extends TestCase
     {
         parent::setUp();
         $this->seed(DatabaseSeeder::class);
+
+        // L'organigramme est réservé aux comptes connectés ; l'administrateur le voit en entier.
+        $this->actingAs(\App\Models\User::role(\App\Models\User::ROLE_ADMIN)->firstOrFail());
     }
 
     public function test_l_organigramme_complet_est_exporte_en_pdf(): void

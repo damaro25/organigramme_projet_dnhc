@@ -6,14 +6,19 @@ use App\Enums\StatutProjet;
 use App\Enums\TypeStructure;
 use App\Models\Projet;
 use App\Models\Structure;
+use App\Services\PerimetreVisibilite;
 use Illuminate\Support\Collection;
 
 /** Indicateurs du tableau de bord, calculés sur les projets non archivés correspondant aux filtres. */
 class TableauDeBordService
 {
-    public function calculer(array $filtres): array
+    /** Les indicateurs ne portent que sur ce que le compte peut voir (sa branche de l'organigramme). */
+    public function calculer(array $filtres, ?PerimetreVisibilite $perimetre = null): array
     {
-        $projets = Projet::query()
+        $requete = Projet::query();
+        $perimetre?->restreindreProjets($requete);
+
+        $projets = $requete
             ->nonArchives()
             ->filtrer(array_filter([
                 'structure_id' => $filtres['section'] ?? $filtres['division'] ?? null,
@@ -24,7 +29,9 @@ class TableauDeBordService
             ->with(['structure', 'responsables'])
             ->get();
 
-        $structures = Structure::query()->ordonne()->get();
+        $structures = Structure::query()
+            ->when($perimetre, fn ($q) => $perimetre->restreindreStructures($q))
+            ->ordonne()->get();
         $divisions = $structures->where('type', TypeStructure::Division)->values();
         $sections = $structures->where('type', TypeStructure::Section)->values();
 

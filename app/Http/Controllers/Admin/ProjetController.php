@@ -34,7 +34,9 @@ class ProjetController extends Controller
         ]);
         $filtres['archive'] ??= 0;
 
-        $projets = Projet::query()
+        $perimetre = $request->user()->perimetre();
+
+        $projets = $perimetre->restreindreProjets(Projet::query())
             ->filtrer($filtres)
             ->when($filtres['retard'] ?? false, fn ($q) => $q->enRetard())
             ->avecSommesPoids()
@@ -46,8 +48,8 @@ class ProjetController extends Controller
         return view('admin.projets.index', [
             'projets' => $projets,
             'filtres' => $filtres,
-            'structures' => Structure::query()->whereIn('type', ['direction', 'division', 'section'])->ordonne()->get(),
-            'agents' => Agent::actifs()->orderBy('nom')->get(),
+            'structures' => $perimetre->restreindreStructures(Structure::query())->whereIn('type', ['direction', 'division', 'section'])->ordonne()->get(),
+            'agents' => $perimetre->restreindreAgents(Agent::actifs())->orderBy('nom')->get(),
         ]);
     }
 
@@ -163,7 +165,8 @@ class ProjetController extends Controller
         return [
             'structures' => Structure::query()->ordonne()->get()
                 ->when(! $user->estAdministrateur(), fn ($c) => $c->whereIn('id', $user->structuresGerees())),
-            'agents' => Agent::actifs()->with('structure')->orderBy('nom')->get(),
+            // Agents affectables : ceux de la branche du compte.
+            'agents' => $user->perimetre()->restreindreAgents(Agent::actifs())->with('structure')->orderBy('nom')->get(),
             'statuts' => StatutProjet::cases(),
         ];
     }

@@ -7,14 +7,17 @@ use App\Http\Controllers\OrganigrammeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Partie publique : organigramme et fiches des agents.
-Route::get('/', [OrganigrammeController::class, 'index'])->name('organigramme');
-Route::get('/organigramme/donnees', [OrganigrammeController::class, 'donnees'])->name('organigramme.donnees');
-Route::get('/agents/{agent}/fiche', [FicheAgentController::class, 'show'])->name('agents.fiche');
+// Organigramme et fiches des agents : réservés aux comptes connectés. Chacun n'y voit
+// que sa fiche et la branche placée sous lui (voir App\Services\PerimetreVisibilite).
+Route::middleware('auth')->group(function () {
+    Route::get('/', [OrganigrammeController::class, 'index'])->name('organigramme');
+    Route::get('/organigramme/donnees', [OrganigrammeController::class, 'donnees'])->name('organigramme.donnees');
+    Route::get('/agents/{agent}/fiche', [FicheAgentController::class, 'show'])->name('agents.fiche');
 
-// Exports PDF : les mêmes informations que l'organigramme public.
-Route::get('/organigramme.pdf', [ExportPdfController::class, 'organigramme'])->name('organigramme.pdf');
-Route::get('/agents/{agent}/fiche.pdf', [ExportPdfController::class, 'ficheAgent'])->name('agents.fiche.pdf');
+    // Exports PDF : les mêmes informations que l'organigramme affiché au compte.
+    Route::get('/organigramme.pdf', [ExportPdfController::class, 'organigramme'])->name('organigramme.pdf');
+    Route::get('/agents/{agent}/fiche.pdf', [ExportPdfController::class, 'ficheAgent'])->name('agents.fiche.pdf');
+});
 
 // Après connexion, Breeze redirige vers « dashboard » : c'est le tableau de bord de l'administration.
 Route::redirect('/dashboard', '/admin')->name('dashboard');

@@ -21,7 +21,9 @@ class AgentPolicy
     /** Un chef modifie les agents de sa structure et de ses sous-structures. */
     public function update(User $user, Agent $agent): bool
     {
-        return $user->can('gerer_agents') && in_array($agent->structure_id, $user->structuresGerees(), true);
+        return $user->can('gerer_agents')
+            && in_array($agent->structure_id, $user->structuresGerees(), true)
+            && $user->perimetre()->voitAgent($agent);
     }
 
     /** Photo : chef pour ses agents, chacun pour sa propre fiche. */
@@ -31,7 +33,8 @@ class AgentPolicy
             return false;
         }
 
-        return $user->agent_id === $agent->id || in_array($agent->structure_id, $user->structuresGerees(), true);
+        return $user->agent_id === $agent->id
+            || (in_array($agent->structure_id, $user->structuresGerees(), true) && $user->perimetre()->voitAgent($agent));
     }
 
     /** Désactivation (départ, mutation) : réservée à l'administrateur. */

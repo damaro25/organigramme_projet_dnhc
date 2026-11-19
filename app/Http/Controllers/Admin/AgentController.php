@@ -26,7 +26,9 @@ class AgentController extends Controller
             'etat' => ['nullable', Rule::in(['actifs', 'inactifs', 'tous'])],
         ]);
 
-        $agents = Agent::query()
+        $perimetre = $request->user()->perimetre();
+
+        $agents = $perimetre->restreindreAgents(Agent::query())
             ->with('structure', 'superieur')
             ->recherche($filtres['recherche'] ?? null)
             ->dansStructure($filtres['section'] ?? $filtres['division'] ?? null)
@@ -38,8 +40,8 @@ class AgentController extends Controller
         return view('admin.agents.index', [
             'agents' => $agents,
             'filtres' => $filtres,
-            'divisions' => Structure::deType(TypeStructure::Division)->ordonne()->get(),
-            'sections' => Structure::deType(TypeStructure::Section)->ordonne()->get(),
+            'divisions' => $perimetre->restreindreStructures(Structure::deType(TypeStructure::Division))->ordonne()->get(),
+            'sections' => $perimetre->restreindreStructures(Structure::deType(TypeStructure::Section))->ordonne()->get(),
         ]);
     }
 
@@ -107,7 +109,10 @@ class AgentController extends Controller
 
         return [
             'structures' => $structures,
+            // Supérieur : un agent de la branche du compte (on garde le supérieur actuel s'il est ailleurs).
             'superieurs' => Agent::actifs()->with('structure')
+                ->when(! $user->perimetre()->estGlobal(), fn ($q) => $q->where(fn ($w) => $user->perimetre()->restreindreAgents($w)
+                    ->when($agent?->superieur_id, fn ($o, $id) => $o->orWhere('agents.id', $id))))
                 ->when($agent, fn ($q) => $q->whereKeyNot($agent->id))
                 ->orderBy('nom')->get(),
             'peutModifier' => $agent ? $user->can('update', $agent) : $user->can('create', Agent::class),

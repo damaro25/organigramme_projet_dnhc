@@ -76,6 +76,11 @@ Alpine.data('organigramme', ({ urlDonnees, urlFiche, admin = false }) => ({
         try {
             const { data } = await window.axios.get(urlDonnees);
             this.noeuds = data.noeuds.map((n) => ({ ...n, admin: admin && !!n.admin, visibleInitial: n._expanded }));
+            if (!this.noeuds.length) {
+                // Compte sans fiche agent active : rien n'est visible dans l'organigramme.
+                this.erreur = "Aucune fiche agent active n'est liée à votre compte : l'organigramme ne peut pas être affiché. Contactez l'administrateur.";
+                return;
+            }
             this.dessiner();
         } catch (e) {
             this.erreur = "Impossible de charger l'organigramme.";
