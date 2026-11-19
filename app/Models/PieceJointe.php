@@ -12,7 +12,13 @@ class PieceJointe extends Model
 {
     protected $table = 'pieces_jointes';
 
-    protected $fillable = ['projet_id', 'nom', 'chemin', 'taille', 'mime', 'ajoute_par'];
+    protected $fillable = ['projet_id', 'etape_id', 'nom', 'chemin', 'taille', 'mime', 'ajoute_par'];
+
+    /** Types que le navigateur sait afficher directement (aperçu). */
+    public const TYPES_APERCU = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+    /** Extensions acceptées pour les pièces jointes. */
+    public const EXTENSIONS = 'pdf,jpg,jpeg,png,webp,doc,docx,xls,xlsx,ppt,pptx,odt,ods';
 
     protected function casts(): array
     {
@@ -30,6 +36,11 @@ class PieceJointe extends Model
         return $this->belongsTo(Projet::class);
     }
 
+    public function etape(): BelongsTo
+    {
+        return $this->belongsTo(Etape::class);
+    }
+
     public function auteur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'ajoute_par');
@@ -38,6 +49,17 @@ class PieceJointe extends Model
     protected function url(): Attribute
     {
         return Attribute::get(fn () => Storage::disk('public')->url($this->chemin));
+    }
+
+    /** Vrai si le fichier peut s'ouvrir dans le navigateur (PDF ou image). */
+    protected function estVisualisable(): Attribute
+    {
+        return Attribute::get(fn () => in_array($this->mime, self::TYPES_APERCU, true));
+    }
+
+    protected function estImage(): Attribute
+    {
+        return Attribute::get(fn () => str_starts_with((string) $this->mime, 'image/'));
     }
 
     protected function tailleLisible(): Attribute

@@ -40,6 +40,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:acceder_admin']
     Route::post('projets/{projet}/dupliquer', [Admin\ProjetController::class, 'dupliquer'])->name('projets.dupliquer');
     Route::patch('projets/{projet}/valider', [Admin\ProjetController::class, 'valider'])->name('projets.valider');
     Route::get('projets/{projet}/pieces-jointes/{pieceJointe}', [Admin\ProjetController::class, 'telechargerPieceJointe'])->name('projets.pieces-jointes.show');
+    Route::get('projets/{projet}/pieces-jointes/{pieceJointe}/apercu', [Admin\ProjetController::class, 'apercuPieceJointe'])->name('projets.pieces-jointes.apercu');
     Route::delete('projets/{projet}/pieces-jointes/{pieceJointe}', [Admin\ProjetController::class, 'supprimerPieceJointe'])->name('projets.pieces-jointes.destroy');
 
     Route::resource('structures', Admin\StructureController::class)->except(['show', 'destroy']);

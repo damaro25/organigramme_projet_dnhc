@@ -94,6 +94,14 @@
                                                     <span :class="etape.terminee ? 'text-slate-800' : 'text-slate-600'" x-text="etape.libelle"></span>
                                                     <span x-show="etape.terminee" class="ml-1 text-xs font-medium text-green-700" x-text="'✔ ' + etape.date"></span>
                                                     <span x-show="etape.commentaire" class="block text-xs italic text-slate-500" x-text="etape.commentaire"></span>
+                                                    <span x-show="etape.pieces?.length" class="mt-1 flex flex-wrap gap-1.5">
+                                                        <template x-for="piece in etape.pieces ?? []">
+                                                            <a :href="piece.url" target="_blank" rel="noopener" :title="piece.nom + ' (' + piece.taille + ')'"
+                                                               class="inline-flex max-w-[14rem] items-center gap-1 rounded border border-fond-bord bg-white px-1.5 py-0.5 text-[11px] font-medium text-dnh-700 hover:border-dnh-300 hover:text-dnh-950">
+                                                                <span aria-hidden="true">📎</span><span class="truncate" x-text="piece.nom"></span>
+                                                            </a>
+                                                        </template>
+                                                    </span>
                                                 </span>
                                             </li>
                                         </template>

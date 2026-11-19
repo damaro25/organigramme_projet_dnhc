@@ -31,8 +31,13 @@
                     </button>
                 @endif
 
-                {{-- Case à cocher : coche verte immédiate --}}
-                <button type="button" wire:click="basculer({{ $etape->id }})" @disabled(! $this->peutCocher)
+                {{-- Case à cocher : ouvre la validation (date, commentaire, pièces jointes) ; décoche après confirmation. --}}
+                <button type="button" @disabled(! $this->peutCocher)
+                        @if ($etape->est_terminee)
+                            wire:click="basculer({{ $etape->id }})" wire:confirm="Marquer l'étape « {{ $etape->libelle }} » comme non terminée ? Les pièces jointes sont conservées."
+                        @else
+                            wire:click="ouvrirValidation({{ $etape->id }})"
+                        @endif
                         @class(['mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition',
                             'border-green-600 bg-green-600 text-white' => $etape->est_terminee,
                             'border-slate-300 bg-white hover:border-green-500' => ! $etape->est_terminee,
@@ -79,6 +84,102 @@
                             @endif
                         </div>
                         @error("cochage.{$etape->id}.date_realisation") <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    @endif
+
+                    {{-- Pièces jointes de l'étape (justificatifs) --}}
+                    @if ($etape->piecesJointes->isNotEmpty())
+                        <ul class="mt-2 flex flex-wrap gap-2" aria-label="Pièces jointes de l'étape">
+                            @foreach ($etape->piecesJointes as $pj)
+                                <li wire:key="pj-{{ $pj->id }}" class="group flex max-w-xs items-center gap-2 rounded-md border border-fond-bord bg-white py-1 pl-1 pr-2 text-xs shadow-sm">
+                                    <a href="{{ route('admin.projets.pieces-jointes.apercu', [$projet, $pj]) }}" target="_blank" rel="noopener"
+                                       class="flex min-w-0 items-center gap-2 rounded hover:text-dnh-700" title="{{ $pj->est_visualisable ? 'Ouvrir' : 'Télécharger' }} {{ $pj->nom }}">
+                                        @if ($pj->est_image)
+                                            <img src="{{ route('admin.projets.pieces-jointes.apercu', [$projet, $pj]) }}" alt="" loading="lazy" class="h-8 w-8 shrink-0 rounded object-cover ring-1 ring-fond-bord">
+                                        @else
+                                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-dnh-50 font-titre text-[10px] font-bold uppercase text-dnh-800">{{ \Illuminate\Support\Str::of($pj->nom)->afterLast('.')->limit(4, '') }}</span>
+                                        @endif
+                                        <span class="min-w-0">
+                                            <span class="block truncate font-medium text-slate-800">{{ $pj->nom }}</span>
+                                            <span class="block text-[11px] text-slate-500">{{ $pj->taille_lisible }} · {{ $pj->est_visualisable ? 'Ouvrir' : 'Télécharger' }}</span>
+                                        </span>
+                                    </a>
+                                    <a href="{{ route('admin.projets.pieces-jointes.show', [$projet, $pj]) }}" class="shrink-0 rounded p-1 text-slate-400 hover:bg-dnh-50 hover:text-dnh-700" title="Télécharger" aria-label="Télécharger {{ $pj->nom }}">
+                                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.53 8.72a.75.75 0 00-1.06 1.06l4 4a.75.75 0 001.06 0l4-4a.75.75 0 10-1.06-1.06l-2.72 2.72V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>
+                                    </a>
+                                    @if ($this->peutCocher)
+                                        <button type="button" wire:click="supprimerPieceJointe({{ $pj->id }})" wire:confirm="Supprimer la pièce jointe « {{ $pj->nom }} » ?"
+                                                class="shrink-0 rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600" title="Supprimer" aria-label="Supprimer {{ $pj->nom }}">
+                                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
+                                        </button>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+
+                    @if ($etape->est_terminee && $this->peutCocher && $enValidation !== $etape->id)
+                        <button type="button" wire:click="ouvrirValidation({{ $etape->id }})" class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-dnh-700 hover:text-dnh-950 hover:underline">
+                            📎 Joindre des pièces
+                        </button>
+                    @endif
+
+                    {{-- Formulaire de validation : date, commentaire et pièces jointes --}}
+                    @if ($enValidation === $etape->id)
+                        <form wire:submit="valider" class="mt-3 rounded-md border border-dnh-200 bg-dnh-50/60 p-4">
+                            <p class="font-titre text-sm font-semibold uppercase tracking-wider text-dnh-950">
+                                {{ $etape->est_terminee ? 'Joindre des pièces à l\'étape' : 'Valider l\'étape' }}
+                            </p>
+
+                            @unless ($etape->est_terminee)
+                                <div class="mt-3 grid gap-3 sm:grid-cols-[auto,1fr]">
+                                    <div>
+                                        <label for="validation-date-{{ $etape->id }}" class="etiquette">Date de réalisation</label>
+                                        <input id="validation-date-{{ $etape->id }}" type="date" wire:model="validation.date_realisation" max="{{ now()->toDateString() }}" class="champ">
+                                        @error('validation.date_realisation') <p class="mt-1 text-xs text-red-700">{{ $message }}</p> @enderror
+                                    </div>
+                                    <div>
+                                        <label for="validation-commentaire-{{ $etape->id }}" class="etiquette">Commentaire <span class="font-normal text-slate-500">(facultatif)</span></label>
+                                        <input id="validation-commentaire-{{ $etape->id }}" type="text" wire:model="validation.commentaire" maxlength="1000" class="champ">
+                                        @error('validation.commentaire') <p class="mt-1 text-xs text-red-700">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
+                            @endunless
+
+                            <div class="mt-3" x-data="{ envoi: false, progression: 0 }"
+                                 x-on:livewire-upload-start="envoi = true" x-on:livewire-upload-finish="envoi = false"
+                                 x-on:livewire-upload-error="envoi = false" x-on:livewire-upload-progress="progression = $event.detail.progress">
+                                <label for="validation-fichiers-{{ $etape->id }}" class="etiquette">
+                                    Pièces jointes <span class="font-normal text-slate-500">({{ $etape->est_terminee ? 'au moins une' : 'facultatif' }}, {{ \App\Livewire\Admin\EtapesProjet::MAX_FICHIERS }} au plus, 10 Mo chacune)</span>
+                                </label>
+                                <input id="validation-fichiers-{{ $etape->id }}" type="file" multiple wire:model="fichiers"
+                                       accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods"
+                                       class="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-dnh-950 file:px-3 file:py-2 file:font-titre file:text-sm file:font-semibold file:uppercase file:tracking-wider file:text-white hover:file:bg-dnh-700">
+                                <div x-show="envoi" x-cloak class="mt-2 h-1.5 overflow-hidden rounded-full bg-dnh-100" role="progressbar" :aria-valuenow="progression" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="h-full rounded-full bg-energie transition-all" :style="`width: ${progression}%`"></div>
+                                </div>
+                                @error('fichiers') <p class="mt-1 text-xs text-red-700">{{ $message }}</p> @enderror
+                                @error('fichiers.*') <p class="mt-1 text-xs text-red-700">{{ $message }}</p> @enderror
+
+                                @if ($fichiers)
+                                    <ul class="mt-2 space-y-1 text-xs">
+                                        @foreach ($fichiers as $i => $fichier)
+                                            <li wire:key="fichier-{{ $i }}" class="flex items-center justify-between gap-2 rounded bg-white px-2 py-1 ring-1 ring-fond-bord">
+                                                <span class="truncate">📎 {{ $fichier->getClientOriginalName() }} <span class="text-slate-500">· {{ \Illuminate\Support\Number::fileSize($fichier->getSize(), precision: 1) }}</span></span>
+                                                <button type="button" wire:click="retirerFichier({{ $i }})" class="shrink-0 text-slate-400 hover:text-red-600" aria-label="Retirer {{ $fichier->getClientOriginalName() }}">✕</button>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </div>
+
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <button class="btn-primaire py-1.5" wire:loading.attr="disabled" wire:target="fichiers,valider">
+                                    <span wire:loading.remove wire:target="valider">{{ $etape->est_terminee ? 'Joindre' : 'Valider l\'étape' }}</span>
+                                    <span wire:loading wire:target="valider">Enregistrement…</span>
+                                </button>
+                                <button type="button" wire:click="fermerValidation" class="btn-secondaire py-1.5">Annuler</button>
+                            </div>
+                        </form>
                     @endif
                 </div>
 

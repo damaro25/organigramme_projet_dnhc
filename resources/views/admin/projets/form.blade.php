@@ -98,9 +98,11 @@
                 {{-- Pièces jointes --}}
                 <div>
                     <p class="etiquette">Pièces jointes (PDF, rapports…)</p>
-                    @if (! $creation && $projet->piecesJointes->isNotEmpty())
+                    {{-- Pièces du projet ; celles des étapes sont affichées sous chaque étape. --}}
+                    @php($piecesProjet = $creation ? collect() : $projet->piecesJointes->whereNull('etape_id'))
+                    @if ($piecesProjet->isNotEmpty())
                         <ul class="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200">
-                            @foreach ($projet->piecesJointes as $pj)
+                            @foreach ($piecesProjet as $pj)
                                 <li class="flex items-center justify-between gap-2 px-3 py-2 text-sm">
                                     <a href="{{ route('admin.projets.pieces-jointes.show', [$projet, $pj]) }}" class="truncate text-dnh-700 hover:underline">📎 {{ $pj->nom }}</a>
                                     <span class="shrink-0 text-xs text-slate-500">{{ $pj->taille_lisible }}</span>
@@ -151,7 +153,7 @@
                     @endcan
                 </section>
 
-                @foreach ($projet->piecesJointes as $pj)
+                @foreach ($projet->piecesJointes->whereNull('etape_id') as $pj)
                     <form id="supprimer-pj-{{ $pj->id }}" method="POST" action="{{ route('admin.projets.pieces-jointes.destroy', [$projet, $pj]) }}" onsubmit="return confirm('Supprimer cette pièce jointe ?')" class="hidden">@csrf @method('DELETE')</form>
                 @endforeach
             @endif

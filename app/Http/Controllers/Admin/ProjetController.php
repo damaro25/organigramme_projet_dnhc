@@ -136,6 +136,22 @@ class ProjetController extends Controller
         return Storage::disk('public')->download($pieceJointe->chemin, $pieceJointe->nom);
     }
 
+    /** Ouvre la pièce jointe dans le navigateur (PDF, image) ; les autres formats sont téléchargés. */
+    public function apercuPieceJointe(Projet $projet, PieceJointe $pieceJointe): StreamedResponse
+    {
+        $this->authorize('view', $projet);
+        abort_unless($pieceJointe->projet_id === $projet->id, 404);
+
+        if (! $pieceJointe->est_visualisable) {
+            return Storage::disk('public')->download($pieceJointe->chemin, $pieceJointe->nom);
+        }
+
+        return Storage::disk('public')->response($pieceJointe->chemin, $pieceJointe->nom, [
+            'Content-Type' => $pieceJointe->mime,
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function supprimerPieceJointe(Projet $projet, PieceJointe $pieceJointe): RedirectResponse
     {
         $this->authorize('update', $projet);

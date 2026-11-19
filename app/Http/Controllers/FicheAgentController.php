@@ -16,7 +16,7 @@ class FicheAgentController extends Controller
         // Une fiche hors de la branche du compte est introuvable, sans révéler qu'elle existe.
         abort_unless($request->user()->perimetre()->voitAgent($agent), 404);
 
-        $agent->load(['structure.parent', 'projets' => fn ($q) => $q->nonArchives()->with('etapes', 'structure')->orderBy('date_fin_prevue')]);
+        $agent->load(['structure.parent', 'projets' => fn ($q) => $q->nonArchives()->with('etapes.piecesJointes', 'structure')->orderBy('date_fin_prevue')]);
 
         $donnees = [
             'agent' => [
@@ -37,7 +37,7 @@ class FicheAgentController extends Controller
         // Chef de division ou de section : projets de toute sa structure, avec un taux consolidé.
         if ($agent->estChefDeStructure()) {
             $projets = $agent->structure->projetsConsolides()
-                ->with(['etapes', 'structure', 'responsables'])
+                ->with(['etapes.piecesJointes', 'structure', 'responsables'])
                 ->orderBy('date_fin_prevue')
                 ->get();
 
@@ -71,6 +71,12 @@ class FicheAgentController extends Controller
                 'terminee' => $e->est_terminee,
                 'date' => $e->date_realisation?->format('d/m/Y'),
                 'commentaire' => $e->commentaire,
+                // Justificatifs joints à la validation, ouverts dans le navigateur.
+                'pieces' => $e->piecesJointes->map(fn ($pj) => [
+                    'nom' => $pj->nom,
+                    'taille' => $pj->taille_lisible,
+                    'url' => route('admin.projets.pieces-jointes.apercu', [$p, $pj]),
+                ])->values(),
             ])->values(),
         ];
     }
