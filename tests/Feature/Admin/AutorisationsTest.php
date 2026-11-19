@@ -116,33 +116,40 @@ class AutorisationsTest extends TestCase
         $this->assertFalse($c->can('valider', $projet));
     }
 
-    public function test_un_charge_d_etudes_coche_les_etapes_de_ses_projets_et_le_responsable_est_notifie(): void
+    public function test_un_charge_d_etudes_ne_coche_aucune_etape_meme_de_ses_projets(): void
     {
-        Notification::fake();
         $charge = $this->compte('charge.etudes@dnh.local');
-        // Projet dont le chef de section (qui a un compte) est responsable ; le chargé y est membre.
         $chef = $this->compte('chef.section@dnh.local');
         $sien = $chef->agent->projetsResponsable()->firstOrFail();
         $sien->agents()->syncWithoutDetaching([$charge->agent_id => ['role' => 'membre']]);
-        $autre = Projet::whereDoesntHave('agents', fn ($q) => $q->whereKey($charge->agent_id))->firstOrFail();
         $etape = $sien->etapes()->where('est_terminee', false)->firstOrFail();
 
+        $this->assertFalse($charge->can('cocherEtapes', $sien));
         Livewire::actingAs($charge)->test(EtapesProjet::class, ['projet' => $sien])
+            ->call('basculer', $etape->id)->assertForbidden();
+        Livewire::actingAs($charge)->test(EtapesProjet::class, ['projet' => $sien])
+            ->set('nouvelleEtape', ['libelle' => 'Interdit', 'poids' => 1])->call('ajouter')->assertForbidden();
+        $this->assertFalse($etape->fresh()->est_terminee);
+    }
+
+    public function test_le_chef_coche_une_etape_et_les_autres_responsables_sont_notifies(): void
+    {
+        Notification::fake();
+        $chef = $this->compte('chef.section@dnh.local');
+        $charge = $this->compte('charge.etudes@dnh.local');
+        $sien = $chef->agent->projetsResponsable()->firstOrFail();
+        // Le chargé d'études devient co-responsable : il doit être prévenu, pas l'auteur.
+        $sien->agents()->syncWithoutDetaching([$charge->agent_id => ['role' => 'responsable']]);
+        $etape = $sien->etapes()->where('est_terminee', false)->firstOrFail();
+
+        Livewire::actingAs($chef)->test(EtapesProjet::class, ['projet' => $sien])
             ->call('basculer', $etape->id)
             ->assertDispatched('taux-mis-a-jour');
 
         $this->assertTrue($etape->fresh()->est_terminee);
         $this->assertNotNull($etape->fresh()->date_realisation);
-
-        // Le chargé ne peut ni gérer les étapes de son projet, ni cocher celles d'un autre.
-        Livewire::actingAs($charge)->test(EtapesProjet::class, ['projet' => $sien])
-            ->set('nouvelleEtape', ['libelle' => 'Interdit', 'poids' => 1])->call('ajouter')->assertForbidden();
-        Livewire::actingAs($charge)->test(EtapesProjet::class, ['projet' => $autre])
-            ->call('basculer', $autre->etapes()->first()->id)->assertForbidden();
-
-        // Notification au(x) responsable(s) disposant d'un compte, sauf l'auteur.
-        Notification::assertSentTo($chef, EtapeTermineeNotification::class);
-        Notification::assertNotSentTo($charge, EtapeTermineeNotification::class);
+        Notification::assertSentTo($charge, EtapeTermineeNotification::class);
+        Notification::assertNotSentTo($chef, EtapeTermineeNotification::class);
     }
 
     public function test_le_taux_se_recalcule_apres_cochage(): void

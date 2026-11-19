@@ -97,7 +97,7 @@ Mot de passe commun : **`Dnh@2026`**
 | `dnah@dnh.local` | Direction | Directrice Nationale Adjointe (DNAH) | Idem |
 | `chef.division@dnh.local` | Chef de structure | Cheffe de la Division Aval Pétrolier | Gérer agents, photos et projets de sa division et de ses sections |
 | `chef.section@dnh.local` | Chef de structure | Cheffe de la section SSTD | Gérer agents, photos et projets de sa section |
-| `charge.etudes@dnh.local` | Chargé d'études | Premier chargé d'études de la SSTD | Cocher les étapes de ses projets, modifier sa propre photo |
+| `charge.etudes@dnh.local` | Chargé d'études | Premier chargé d'études de la SSTD | Consulter ses projets, modifier sa propre photo |
 | `consultation@dnh.local` | Consultation | Chef du SAF | Lecture seule |
 
 L'organigramme public, les fiches des agents et les exports PDF sont accessibles sans connexion.

@@ -16,7 +16,7 @@ class RolesEtPermissionsSeeder extends Seeder
         'gerer_agents' => ['administrateur', 'direction', 'chef_structure'],
         'modifier_photos' => ['administrateur', 'direction', 'chef_structure', 'charge_etudes'],
         'gerer_projets' => ['administrateur', 'direction', 'chef_structure'],
-        'cocher_etapes' => ['administrateur', 'direction', 'chef_structure', 'charge_etudes'],
+        'cocher_etapes' => ['administrateur', 'direction', 'chef_structure'],
         'valider_projets' => ['administrateur', 'direction'],
         'gerer_structures' => ['administrateur'],
         'gerer_utilisateurs' => ['administrateur'],
@@ -32,11 +32,14 @@ class RolesEtPermissionsSeeder extends Seeder
             User::ROLE_ADMIN, User::ROLE_DIRECTION, User::ROLE_CHEF, User::ROLE_CHARGE, User::ROLE_CONSULTATION,
         ])->mapWithKeys(fn ($nom) => [$nom => Role::findOrCreate($nom, 'web')]);
 
-        foreach (self::MATRICE as $permission => $titulaires) {
+        foreach (array_keys(self::MATRICE) as $permission) {
             Permission::findOrCreate($permission, 'web');
-            foreach ($titulaires as $role) {
-                $roles[$role]->givePermissionTo($permission);
-            }
+        }
+
+        // Chaque rôle reçoit exactement ses permissions de la matrice : relancer ce seeder
+        // retire aussi celles qui n'y figurent plus.
+        foreach ($roles as $nom => $role) {
+            $role->syncPermissions(array_keys(array_filter(self::MATRICE, fn ($titulaires) => in_array($nom, $titulaires, true))));
         }
     }
 }
