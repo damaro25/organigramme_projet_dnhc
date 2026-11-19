@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -9,13 +11,19 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * A basic test example.
-     */
-    public function test_the_application_returns_a_successful_response(): void
+    /** L'accueil (organigramme) est réservé aux comptes connectés. */
+    public function test_l_accueil_redirige_un_visiteur_vers_la_connexion(): void
     {
-        $response = $this->get('/');
+        $this->get('/')->assertRedirect('/login');
+        $this->get('/login')->assertOk();
+    }
 
-        $response->assertStatus(200);
+    public function test_l_accueil_s_affiche_pour_un_compte_connecte(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $this->actingAs(User::role(User::ROLE_ADMIN)->firstOrFail())
+            ->get('/')
+            ->assertOk();
     }
 }
