@@ -59,16 +59,21 @@ class User extends Authenticatable
     }
 
     /**
-     * Identifiants des structures que l'utilisateur gère : sa structure et
-     * ses sous-structures s'il est chef, aucune sinon.
+     * Identifiants des structures dont l'utilisateur gère les agents et les projets :
+     * toutes pour la Direction, celles de sa branche de l'organigramme pour un chef,
+     * aucune sinon.
      */
     public function structuresGerees(): array
     {
-        if (! $this->hasRole(self::ROLE_CHEF) || ! $this->agent?->structure) {
+        if (! $this->hasAnyRole([self::ROLE_DIRECTION, self::ROLE_CHEF])) {
             return [];
         }
 
-        return $this->agent->structure->descendantIds();
+        $perimetre = $this->perimetre();
+
+        return $perimetre->estGlobal()
+            ? Structure::query()->pluck('id')->all()
+            : $perimetre->structureIds();
     }
 
     private ?PerimetreVisibilite $perimetreCalcule = null;

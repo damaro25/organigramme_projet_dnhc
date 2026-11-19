@@ -58,13 +58,12 @@ class ProjetPolicy
         return $this->update($user, $projet);
     }
 
-    /** Cocher une étape : chef de la structure, ou agent affecté au projet. */
+    /**
+     * Faire évoluer un projet (cocher ses étapes) : tout compte qui en a la permission,
+     * pour les projets de sa branche (structure de la branche ou agent de la branche affecté).
+     */
     public function cocherEtapes(User $user, Projet $projet): bool
     {
-        if (! $user->can('cocher_etapes')) {
-            return false;
-        }
-
-        return $this->update($user, $projet) || ($user->estAffecteAuProjet($projet) && $user->perimetre()->voitProjet($projet));
+        return $user->can('cocher_etapes') && $user->perimetre()->voitProjet($projet);
     }
 }

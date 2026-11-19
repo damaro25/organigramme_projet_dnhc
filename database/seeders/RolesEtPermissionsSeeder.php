@@ -13,10 +13,10 @@ class RolesEtPermissionsSeeder extends Seeder
     /** Permission => rôles qui la reçoivent. Le périmètre (sa structure, ses projets) est vérifié par les Policies. */
     public const MATRICE = [
         'acceder_admin' => ['administrateur', 'direction', 'chef_structure', 'charge_etudes', 'consultation'],
-        'gerer_agents' => ['administrateur', 'chef_structure'],
-        'modifier_photos' => ['administrateur', 'chef_structure', 'charge_etudes'],
-        'gerer_projets' => ['administrateur', 'chef_structure'],
-        'cocher_etapes' => ['administrateur', 'chef_structure', 'charge_etudes'],
+        'gerer_agents' => ['administrateur', 'direction', 'chef_structure'],
+        'modifier_photos' => ['administrateur', 'direction', 'chef_structure', 'charge_etudes'],
+        'gerer_projets' => ['administrateur', 'direction', 'chef_structure'],
+        'cocher_etapes' => ['administrateur', 'direction', 'chef_structure', 'charge_etudes'],
         'valider_projets' => ['administrateur', 'direction'],
         'gerer_structures' => ['administrateur'],
         'gerer_utilisateurs' => ['administrateur'],

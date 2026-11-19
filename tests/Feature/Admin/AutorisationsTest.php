@@ -88,13 +88,19 @@ class AutorisationsTest extends TestCase
         $this->assertFalse($chef->can('update', $this->projetDeSection('SESD')));
     }
 
-    public function test_la_direction_consulte_et_valide_mais_ne_modifie_pas(): void
+    public function test_la_direction_modifie_et_valide_tout(): void
     {
-        $dnh = $this->compte('dnh@dnh.local');
+        $dnah = $this->compte('dnah@dnh.local');
         $projet = $this->projetDeSection('SSTD');
 
-        $this->actingAs($dnh)->get(route('admin.projets.edit', $projet))->assertOk();
-        $this->assertFalse($dnh->can('update', $projet));
+        $this->actingAs($dnah)->get(route('admin.projets.edit', $projet))->assertOk();
+        $this->assertTrue($dnah->can('update', $projet));
+        $this->assertTrue($dnah->can('cocherEtapes', $projet));
+        $this->assertTrue($dnah->can('update', \App\Models\Agent::whereHas('structure', fn ($q) => $q->where('sigle', 'DAMP'))->firstOrFail()));
+        $this->assertFalse($dnah->can('viewAny', \App\Models\User::class));
+        $this->assertFalse($dnah->can('viewAny', Structure::class));
+
+        $dnh = $this->compte('dnh@dnh.local');
         $this->actingAs($dnh)->patch(route('admin.projets.valider', $projet))->assertRedirect();
         $this->assertNotNull($projet->fresh()->valide_le);
     }

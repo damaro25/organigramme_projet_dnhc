@@ -37,9 +37,9 @@ class AgentPolicy
             || (in_array($agent->structure_id, $user->structuresGerees(), true) && $user->perimetre()->voitAgent($agent));
     }
 
-    /** Désactivation (départ, mutation) : réservée à l'administrateur. */
+    /** Désactivation (départ, mutation) : administrateur et Direction. */
     public function desactiver(User $user, Agent $agent): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_DIRECTION);
     }
 }
