@@ -2,9 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- Base : identité DNH ---------- */
+@layer base {
+    /* Titres en condensée, comme le texte du logo. */
+    h1, h2, h3 { @apply font-titre tracking-wide; }
+    h2 { @apply text-dnh-950; }
+    /* Focus clavier toujours visible, y compris sur les liens. */
+    a:focus-visible, button:focus-visible, summary:focus-visible { @apply outline-none ring-2 ring-dnh-500 ring-offset-2; }
+    ::selection { @apply bg-dnh-100 text-dnh-950; }
+}
+
 /* ---------- Organigramme (nœuds d3-org-chart) ---------- */
 @layer components {
-    /* Toile de l'arbre : gris-vert doux avec une trame de points discrète, qui
+    /* Toile de l'arbre : gris bleuté doux avec une trame de points discrète, qui
        signale une surface que l'on peut déplacer et fait ressortir les cartes. */
     .toile {
         background-color: theme('colors.fond.toile');
@@ -12,8 +22,7 @@
         background-size: 22px 22px;
     }
     .oc-noeud {
-        @apply relative flex flex-col items-center rounded-xl border border-fond-bord bg-white px-3 pt-4 pb-3 text-center;
-        box-shadow: 0 1px 2px rgb(16 40 28 / 0.06), 0 2px 8px rgb(16 40 28 / 0.06);
+        @apply relative flex flex-col items-center rounded-lg border border-fond-bord bg-white px-3 pt-4 pb-3 text-center shadow-carte;
         border-top-width: 6px;
         font-family: theme('fontFamily.sans');
     }
@@ -21,47 +30,52 @@
         @apply justify-center border-2 border-dashed border-slate-400 bg-fond;
     }
     .oc-photo {
-        @apply block h-20 w-20 shrink-0 overflow-hidden rounded-full ring-4 ring-dnh-100 transition hover:ring-dnh-500 focus:outline-none focus:ring-dnh-600;
+        @apply block h-20 w-20 shrink-0 overflow-hidden rounded-full ring-4 ring-dnh-100 transition hover:ring-energie focus:outline-none focus:ring-dnh-600;
     }
     .oc-photo img { @apply h-full w-full object-cover; }
-    .oc-nom { @apply mt-2 line-clamp-1 text-sm font-semibold text-slate-800; }
+    .oc-nom { @apply mt-2 line-clamp-1 text-sm font-semibold text-dnh-950; }
     .oc-poste { @apply line-clamp-2 text-xs leading-snug text-slate-600; }
-    .oc-structure { @apply mt-auto text-[11px] font-bold uppercase tracking-wide; }
-    .oc-sigle { @apply text-lg font-bold text-slate-700; }
+    .oc-structure { @apply mt-auto font-titre text-xs font-bold uppercase tracking-wider; }
+    .oc-sigle { @apply font-titre text-xl font-bold tracking-wide text-dnh-900; }
     .oc-badge { @apply absolute right-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-bold text-white shadow; }
     .oc-edit { @apply absolute left-2 top-2 rounded-full bg-white px-1.5 text-sm shadow ring-1 ring-slate-200 hover:bg-dnh-50; }
-    .oc-bouton { @apply flex items-center justify-center gap-1 rounded-full border border-slate-300 bg-white px-2 py-0.5 text-xs font-semibold text-slate-700 shadow-sm; margin: auto; width: 46px; }
+    .oc-bouton { @apply flex items-center justify-center gap-1 rounded-full border border-dnh-200 bg-white px-2 py-0.5 text-xs font-semibold text-dnh-800 shadow-sm; margin: auto; width: 46px; }
 
     .oc-racine { @apply flex items-start justify-between gap-4; font-family: theme('fontFamily.sans'); }
     .oc-racine-centre { @apply shrink-0; }
     .oc-cote { @apply flex w-60 flex-col gap-1.5; }
-    .oc-cote-titre { @apply text-[10px] font-semibold uppercase tracking-wide text-slate-500; }
-    .oc-service { @apply rounded-lg border px-2 py-1 text-left shadow-sm; }
+    .oc-cote-titre { @apply font-titre text-[11px] font-semibold uppercase tracking-wider text-slate-500; }
+    .oc-service { @apply rounded-md border px-2 py-1 text-left shadow-sm; }
     .oc-service--clair { @apply border-fond-bord bg-white text-slate-800; }
-    /* « bleu » = cases pleines du personnel d'appui, en vert foncé selon la charte. */
-    .oc-service--bleu { @apply border-dnh-700 bg-dnh-700 text-white; }
-    .oc-service-titre { @apply text-xs font-bold; }
+    /* « bleu » = cases pleines du personnel d'appui, dans le marine du logo. */
+    .oc-service--bleu { @apply border-dnh-950 bg-dnh-950 text-white; }
+    .oc-service-titre { @apply font-titre text-xs font-bold uppercase tracking-wide; }
     .oc-service-agent { @apply flex w-full items-center gap-1.5 rounded text-[11px] hover:underline; }
     .oc-service-agent img { @apply h-5 w-5 rounded-full object-cover ring-1 ring-white; }
     .oc-service-agent span { @apply truncate; }
 }
 
 @layer components {
-    .btn-outil { @apply inline-flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-dnh-500; }
+    .btn-outil { @apply inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-slate-300 bg-white text-sm font-medium text-dnh-900 transition hover:border-dnh-300 hover:bg-dnh-50 focus:outline-none focus:ring-2 focus:ring-dnh-500; }
 }
 
 [x-cloak] { display: none !important; }
 
 /* ---------- Administration ---------- */
 @layer components {
-    .btn-primaire { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-dnh-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-dnh-800 focus:outline-none focus:ring-2 focus:ring-dnh-500 focus:ring-offset-1 disabled:opacity-50; }
-    .btn-secondaire { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-dnh-500 disabled:opacity-50; }
-    .btn-danger { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500; }
-    .carte { @apply rounded-xl border border-fond-bord bg-white shadow-sm; }
-    .champ { @apply mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-dnh-500 focus:ring-dnh-500; }
-    .etiquette { @apply block text-sm font-medium text-slate-700; }
-    .tableau { @apply min-w-full divide-y divide-slate-200 text-sm; }
-    .tableau th { @apply whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500; }
+    /* Boutons : libellés en condensée capitales, comme le logo. */
+    .btn-primaire { @apply inline-flex items-center justify-center gap-2 rounded-md bg-dnh-950 px-4 py-2 font-titre text-[15px] font-semibold uppercase tracking-wider text-white shadow-sm transition hover:bg-dnh-700 active:bg-dnh-900 focus:outline-none focus:ring-2 focus:ring-dnh-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50; }
+    .btn-secondaire { @apply inline-flex items-center justify-center gap-2 rounded-md border border-dnh-200 bg-white px-4 py-2 font-titre text-[15px] font-semibold uppercase tracking-wider text-dnh-900 transition hover:border-dnh-400 hover:bg-dnh-50 focus:outline-none focus:ring-2 focus:ring-dnh-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50; }
+    .btn-danger { @apply inline-flex items-center justify-center gap-2 rounded-md border border-red-200 bg-white px-4 py-2 font-titre text-[15px] font-semibold uppercase tracking-wider text-red-700 transition hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2; }
+    .carte { @apply rounded-lg border border-fond-bord bg-white shadow-carte; }
+    .champ { @apply mt-1 block w-full rounded-md border-slate-300 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-dnh-500 focus:ring-dnh-500 disabled:bg-slate-50 disabled:text-slate-500; }
+    .etiquette { @apply block text-sm font-medium text-dnh-950; }
+    .tableau { @apply min-w-full divide-y divide-fond-bord text-sm; }
+    .tableau th { @apply whitespace-nowrap px-4 py-3 text-left font-titre text-[13px] font-semibold uppercase tracking-wider text-dnh-800; }
     .tableau td { @apply px-4 py-3 align-middle; }
-    .titre-page { @apply text-lg font-bold text-slate-900; }
+    .tableau tbody tr { @apply transition-colors hover:bg-dnh-50/60; }
+    .titre-page { @apply font-titre text-xl font-bold uppercase tracking-wider text-dnh-950 sm:text-2xl; }
+    /* Valeur chiffrée d'un indicateur du tableau de bord. */
+    .kpi-libelle { @apply font-titre text-[13px] font-semibold uppercase tracking-wider text-slate-500; }
+    .kpi-valeur { @apply mt-1 font-titre text-4xl font-bold tabular-nums; }
 }

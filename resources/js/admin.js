@@ -5,6 +5,11 @@ import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import Sortable from 'sortablejs';
 import Chart from 'chart.js/auto';
+
+// Typographie et couleurs des graphiques accordées à l'identité DNH.
+Chart.defaults.font.family = "Barlow, 'Century Gothic', ui-sans-serif, system-ui, sans-serif";
+Chart.defaults.color = '#475569';
+Chart.defaults.borderColor = '#dbe1ee';
 import { enregistrerOrganigramme } from './organigramme-composant';
 
 window.Sortable = Sortable;
@@ -168,7 +173,7 @@ Alpine.data('graphiqueDivisions', ({ libelles, taux, nombres, couleurs }) => ({
                 labels: libelles,
                 datasets: [
                     { label: "Taux d'exécution moyen (%)", data: taux, backgroundColor: couleurs, borderRadius: 6, yAxisID: 'y' },
-                    { label: 'Nombre de projets', data: nombres, type: 'line', borderColor: '#374151', backgroundColor: '#374151', pointRadius: 5, yAxisID: 'y1' },
+                    { label: 'Nombre de projets', data: nombres, type: 'line', borderColor: '#000b3d', backgroundColor: '#f2a900', pointBorderColor: '#000b3d', pointBorderWidth: 2, pointRadius: 5, yAxisID: 'y1' },
                 ],
             },
             options: {

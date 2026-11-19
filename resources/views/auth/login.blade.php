@@ -13,7 +13,7 @@
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
+        <div class="mt-5">
             <x-input-label for="password" :value="__('Password')" />
 
             <x-text-input id="password" class="block mt-1 w-full"
@@ -25,23 +25,21 @@
         </div>
 
         <!-- Remember Me -->
-        <div class="block mt-4">
+        <div class="mt-5 flex flex-wrap items-center justify-between gap-2">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-dnh-600 shadow-sm focus:ring-dnh-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-slate-300 text-dnh-950 shadow-sm focus:ring-dnh-500" name="remember">
+                <span class="ms-2 text-sm text-slate-700">{{ __('Remember me') }}</span>
             </label>
-        </div>
 
-        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-dnh-500" href="{{ route('password.request') }}">
+                <a class="rounded text-sm font-medium text-dnh-700 hover:text-dnh-950 hover:underline" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <x-primary-button class="mt-7 w-full py-3">
+            {{ __('Log in') }}
+        </x-primary-button>
     </form>
 </x-guest-layout>

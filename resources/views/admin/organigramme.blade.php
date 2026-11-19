@@ -1,6 +1,6 @@
 <x-app-layout titre="Organigramme">
     <x-slot name="header">
-        <h1 class="titre-page">Organigramme <span class="ml-2 text-sm font-normal text-slate-500">Cliquez sur ✏️ pour changer la photo ou le poste sans quitter l'arbre.</span></h1>
+        <h1 class="titre-page">Organigramme <span class="ml-2 font-sans text-sm font-normal normal-case tracking-normal text-slate-500">Cliquez sur ✏️ pour changer la photo ou le poste sans quitter l'arbre.</span></h1>
     </x-slot>
 
     <div class="carte relative h-[calc(100vh-9rem)] overflow-hidden">

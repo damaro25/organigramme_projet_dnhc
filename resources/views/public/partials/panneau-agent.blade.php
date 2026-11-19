@@ -1,20 +1,20 @@
 {{-- Panneau latéral : fiche de l'agent et liste de ses projets (données chargées en JSON). --}}
-<div x-show="panneau.ouvert" x-cloak class="fixed inset-0 z-40 bg-slate-900/30 lg:hidden" @click="fermerFiche()"></div>
+<div x-show="panneau.ouvert" x-cloak class="fixed inset-0 z-40 bg-dnh-950/40 lg:hidden" @click="fermerFiche()"></div>
 <aside x-show="panneau.ouvert" x-cloak
        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
-       class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-2xl"
+       class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-flottant"
        role="dialog" aria-modal="true" aria-label="Fiche de l'agent">
 
-    <div class="flex items-center justify-between border-b border-slate-200 px-5 py-3">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Fiche de l'agent</h2>
+    <div class="flex items-center justify-between bg-dnh-950 px-5 py-3 text-white">
+        <h2 class="text-base font-semibold uppercase tracking-wider text-white">Fiche de l'agent</h2>
         <a x-show="panneau.donnees?.agent" :href="@js(route('agents.fiche.pdf', '__ID__')).replace('__ID__', panneau.donnees?.agent?.id)"
-           class="ml-auto mr-2 inline-flex items-center gap-1 rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">
+           class="ml-auto mr-2 inline-flex items-center gap-1 rounded-md border border-white/25 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-white/10 focus-visible:ring-offset-dnh-950">
             <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.53 8.72a.75.75 0 00-1.06 1.06l4 4a.75.75 0 001.06 0l4-4a.75.75 0 10-1.06-1.06l-2.72 2.72V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>
             Fiche PDF
         </a>
-        <button type="button" @click="fermerFiche()" class="rounded-md p-1 text-slate-500 hover:bg-slate-100" aria-label="Fermer">
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
+        <button type="button" @click="fermerFiche()" class="rounded-md p-1 text-dnh-200 transition hover:bg-white/10 hover:text-white focus-visible:ring-offset-dnh-950" aria-label="Fermer">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
         </button>
     </div>
 
@@ -25,7 +25,7 @@
         <template x-if="panneau.donnees && !panneau.donnees.erreur">
             <div>
                 {{-- Identité --}}
-                <div class="flex gap-4 bg-dnh-50 px-5 py-5">
+                <div class="flex gap-4 border-b border-dnh-100 bg-dnh-50 px-5 py-5">
                     <img :src="panneau.donnees.agent.photo" :alt="'Photo de ' + panneau.donnees.agent.nom" class="h-24 w-24 shrink-0 rounded-full object-cover ring-4 ring-white">
                     <div class="min-w-0">
                         <p class="text-lg font-bold text-slate-900" x-text="panneau.donnees.agent.nom"></p>
@@ -61,7 +61,7 @@
 
                         <ul class="space-y-4">
                             <template x-for="projet in vue.projets" :key="projet.id">
-                                <li class="rounded-xl border border-slate-200 p-4" :class="projet.enRetard ? 'border-red-300 bg-red-50/40' : ''">
+                                <li class="rounded-lg border border-fond-bord p-4" :class="projet.enRetard ? 'border-red-300 bg-red-50/40' : ''">
                                     <div class="flex items-start justify-between gap-2">
                                         <p class="font-semibold text-slate-900" x-text="projet.titre"></p>
                                         <span class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" :class="classeStatut(projet.statut)" x-text="projet.statutLibelle"></span>

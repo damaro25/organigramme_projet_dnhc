@@ -26,48 +26,53 @@
 @endphp
 <div x-data="{ menu: false }" class="flex min-h-full">
     {{-- Menu latéral --}}
-    <div x-show="menu" x-cloak class="fixed inset-0 z-30 bg-slate-900/40 lg:hidden" @click="menu = false"></div>
+    <div x-show="menu" x-cloak x-transition.opacity class="fixed inset-0 z-30 bg-dnh-950/50 backdrop-blur-sm lg:hidden" @click="menu = false"></div>
     <aside :class="menu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-           class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-dnh-900 text-white transition-transform lg:sticky lg:top-0 lg:h-screen">
-        <x-tricolore />
-        <a href="{{ route('organigramme') }}" class="flex items-center gap-3 border-b border-white/10 px-4 py-4">
-            {{-- Armoiries sur fond blanc, avec une marge libre (charte graphique). --}}
-            <span class="shrink-0 rounded bg-white p-1.5">
-                <img src="{{ \App\Support\Armoiries::url() }}" alt="Armoiries de la République de Guinée" class="h-9 w-auto object-contain">
+           class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-hidden bg-dnh-950 text-white transition-transform lg:sticky lg:top-0 lg:h-screen">
+        {{-- Emblème en filigrane, très discret, en bas du menu. --}}
+        <x-logo-dnh variante="embleme" class="pointer-events-none absolute -bottom-10 -right-16 h-56 w-auto text-white opacity-[0.04]" aria-hidden="true" />
+        <a href="{{ route('organigramme') }}" class="relative block border-b border-white/10 px-5 pb-4 pt-5" title="Voir l'organigramme public">
+            <x-logo-dnh class="h-auto w-full text-white" />
+            <span class="mt-3 flex items-center gap-2 font-titre text-[11px] font-semibold uppercase tracking-[0.18em] text-dnh-200">
+                <span class="h-px flex-1 bg-white/15"></span>Administration<span class="h-px flex-1 bg-white/15"></span>
             </span>
-            <span class="leading-tight"><span class="block text-[10px] uppercase tracking-wider text-dnh-200">République de Guinée</span><span class="block text-sm font-bold">DNH</span><span class="block text-xs text-dnh-200">Administration</span></span>
         </a>
-        <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Menu d'administration">
+        <nav class="relative flex-1 space-y-0.5 overflow-y-auto px-3 py-4" aria-label="Menu d'administration">
             @foreach ($menu as [$libelle, $route, $motif, $visible, $icone])
                 @continue(! $visible)
-                <a href="{{ route($route) }}" @class(['flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
-                        'bg-white/15 text-white' => request()->routeIs($motif), 'text-dnh-100 hover:bg-white/10' => ! request()->routeIs($motif)])>
-                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{ $icone }}"/></svg>
+                <a href="{{ route($route) }}" @if (request()->routeIs($motif)) aria-current="page" @endif @class(['group relative flex items-center gap-3 rounded-md px-3 py-2.5 font-titre text-[15px] font-semibold uppercase tracking-wider transition focus-visible:ring-offset-dnh-950',
+                        'bg-white/10 text-white' => request()->routeIs($motif), 'text-dnh-200 hover:bg-white/5 hover:text-white' => ! request()->routeIs($motif)])>
+                    {{-- Repère de l'élément actif : la couleur de la flamme. --}}
+                    <span @class(['absolute inset-y-1.5 left-0 w-1 rounded-r bg-energie transition', 'opacity-100' => request()->routeIs($motif), 'opacity-0' => ! request()->routeIs($motif)]) aria-hidden="true"></span>
+                    <svg @class(['h-5 w-5 shrink-0', 'text-energie' => request()->routeIs($motif), 'text-dnh-300 group-hover:text-white' => ! request()->routeIs($motif)]) viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{ $icone }}"/></svg>
                     {{ $libelle }}
                 </a>
             @endforeach
         </nav>
-        <a href="{{ route('organigramme') }}" class="mx-3 mb-4 rounded-lg border border-white/20 px-3 py-2 text-center text-xs text-dnh-100 hover:bg-white/10">← Voir l'organigramme public</a>
+        <div class="relative">
+            <a href="{{ route('organigramme') }}" class="mx-3 mb-3 flex items-center justify-center gap-2 rounded-md border border-white/15 px-3 py-2 font-titre text-[13px] font-semibold uppercase tracking-wider text-dnh-100 transition hover:border-white/30 hover:bg-white/5 hover:text-white focus-visible:ring-offset-dnh-950">← Organigramme public</a>
+            <x-tricolore />
+        </div>
     </aside>
 
     <div class="flex min-w-0 flex-1 flex-col">
         {{-- Barre supérieure --}}
-        <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-fond-bord bg-white px-4 py-3 lg:px-8">
-            <button type="button" class="rounded-md p-1.5 text-slate-600 hover:bg-slate-100 lg:hidden" @click="menu = true" aria-label="Ouvrir le menu">
+        <header class="sticky top-0 z-20 flex min-h-16 items-center gap-3 border-b border-fond-bord bg-white/95 px-4 py-3 backdrop-blur lg:px-8">
+            <button type="button" class="rounded-md p-1.5 text-dnh-900 hover:bg-dnh-50 lg:hidden" @click="menu = true" aria-label="Ouvrir le menu" :aria-expanded="menu.toString()">
                 <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0 flex-1">{{ $header ?? '' }}</div>
 
             <x-dropdown align="right" width="48">
                 <x-slot name="trigger">
-                    <button class="flex items-center gap-2 rounded-lg px-2 py-1 text-sm hover:bg-slate-100">
-                        <img src="{{ $u->agent?->miniature_url ?? asset(\App\Models\Agent::AVATAR_DEFAUT) }}" alt="" class="h-8 w-8 rounded-full object-cover">
+                    <button class="flex items-center gap-2 rounded-md px-2 py-1 text-sm transition hover:bg-dnh-50" aria-label="Menu du compte{{ $nonLues ? ' – '.$nonLues.' notification(s) non lue(s)' : '' }}">
+                        <img src="{{ $u->agent?->miniature_url ?? asset(\App\Models\Agent::AVATAR_DEFAUT) }}" alt="" class="h-9 w-9 rounded-full object-cover ring-2 ring-dnh-100">
                         <span class="hidden text-left sm:block">
-                            <span class="block font-medium leading-tight">{{ $u->name }}</span>
+                            <span class="block font-semibold leading-tight text-dnh-950">{{ $u->name }}</span>
                             <span class="block text-xs text-slate-500">{{ \App\Http\Requests\Admin\UserRequest::ROLES[$u->getRoleNames()->first()] ?? '' }}</span>
                         </span>
                         @if ($nonLues)
-                            <span class="rounded-full bg-red-600 px-1.5 text-xs font-bold text-white" title="Notifications non lues">{{ $nonLues }}</span>
+                            <span class="rounded-full bg-energie px-1.5 text-xs font-bold text-dnh-950" title="Notifications non lues">{{ $nonLues }}</span>
                         @endif
                     </button>
                 </x-slot>
@@ -82,9 +87,9 @@
             </x-dropdown>
         </header>
 
-        <main class="flex-1 px-4 py-6 lg:px-8">
+        <main class="flex-1 px-4 py-6 lg:px-8 lg:py-8">
             @if ($errors->any() && ! isset($masquerErreurs))
-                <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+                <div class="mb-6 rounded-md border border-red-200 border-l-4 border-l-red-600 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
                     <p class="font-semibold">Le formulaire contient des erreurs :</p>
                     <ul class="mt-1 list-inside list-disc">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
                 </div>
@@ -100,7 +105,10 @@
 <div x-data="notifications" x-init="ajouter(@js(session('succes')))" @notification.window="ajouter($event.detail.message ?? $event.detail[0]?.message)"
      class="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2" aria-live="polite">
     <template x-for="n in liste" :key="n.id">
-        <div x-transition class="pointer-events-auto rounded-lg bg-slate-900 px-4 py-3 text-sm text-white shadow-lg" x-text="n.message"></div>
+        <div x-transition class="pointer-events-auto flex items-center gap-3 rounded-md border-l-4 border-energie bg-dnh-950 px-4 py-3 text-sm text-white shadow-flottant">
+            <svg class="h-5 w-5 shrink-0 text-energie" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.86-9.86a.75.75 0 00-1.22-.88l-3.24 4.53-1.6-1.6a.75.75 0 10-1.06 1.06l2.22 2.22a.75.75 0 001.14-.1l3.76-5.23z" clip-rule="evenodd"/></svg>
+            <span x-text="n.message"></span>
+        </div>
     </template>
 </div>
 

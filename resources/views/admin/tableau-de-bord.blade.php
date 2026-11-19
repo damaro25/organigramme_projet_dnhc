@@ -46,20 +46,21 @@
 
     {{-- Indicateurs --}}
     <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-7">
-        <div class="carte p-5 xl:col-span-2">
-            <p class="text-xs font-medium uppercase text-slate-500">Taux d'exécution global de la DNH</p>
-            <p class="mt-1 text-4xl font-bold text-dnh-800">{{ $tauxGlobal ?? 0 }} %</p>
+        <div class="carte relative overflow-hidden border-dnh-950 bg-dnh-950 p-5 text-white xl:col-span-2">
+            <x-logo-dnh variante="embleme" class="pointer-events-none absolute -bottom-6 -right-6 h-32 w-auto text-white opacity-[0.07]" aria-hidden="true" />
+            <p class="kpi-libelle text-dnh-200">Taux d'exécution global de la DNH</p>
+            <p class="kpi-valeur text-white">{{ $tauxGlobal ?? 0 }} %</p>
             <div class="mt-3"><x-admin-barre-taux :taux="$tauxGlobal" /></div>
-            <p class="mt-2 text-xs text-slate-500">{{ $total }} projet(s) en cours de suivi</p>
+            <p class="mt-2 text-xs text-dnh-200">{{ $total }} projet(s) en cours de suivi</p>
         </div>
-        <a href="{{ route('admin.projets.index', ['retard' => 1]) }}" class="carte p-5 hover:bg-red-50">
-            <p class="text-xs font-medium uppercase text-slate-500">En retard</p>
-            <p class="mt-1 text-4xl font-bold text-red-700">{{ $enRetard->count() }}</p>
+        <a href="{{ route('admin.projets.index', ['retard' => 1]) }}" class="carte border-l-4 border-l-red-600 p-5 transition hover:-translate-y-0.5 hover:shadow-flottant">
+            <p class="kpi-libelle">En retard</p>
+            <p class="kpi-valeur text-red-700">{{ $enRetard->count() }}</p>
         </a>
         @foreach ($parStatut as $ligne)
-            <a href="{{ route('admin.projets.index', ['statut' => $ligne['statut']->value]) }}" class="carte p-5 hover:bg-slate-50">
-                <p class="text-xs font-medium uppercase text-slate-500">{{ $ligne['statut']->libelle() }}</p>
-                <p class="mt-1 text-4xl font-bold text-slate-900">{{ $ligne['nombre'] }}</p>
+            <a href="{{ route('admin.projets.index', ['statut' => $ligne['statut']->value]) }}" class="carte p-5 transition hover:-translate-y-0.5 hover:border-dnh-200 hover:shadow-flottant">
+                <p class="kpi-libelle">{{ $ligne['statut']->libelle() }}</p>
+                <p class="kpi-valeur text-dnh-950">{{ $ligne['nombre'] }}</p>
             </a>
         @endforeach
     </div>
@@ -67,7 +68,7 @@
     <div class="mt-6 grid gap-6 xl:grid-cols-2">
         {{-- Comparaison des divisions --}}
         <section class="carte p-5">
-            <h2 class="mb-4 font-semibold">Comparaison des divisions</h2>
+            <h2 class="mb-4 text-lg font-semibold uppercase">Comparaison des divisions</h2>
             <div class="h-72" x-data="graphiqueDivisions({
                     libelles: @js($divisions->map(fn ($d) => $d['structure']->sigle ?: $d['structure']->nom)),
                     taux: @js($divisions->map(fn ($d) => $d['taux'] ?? 0)),
@@ -93,7 +94,7 @@
 
         {{-- Classement des sections --}}
         <section class="carte p-5">
-            <h2 class="mb-4 font-semibold">Classement des sections par taux d'exécution</h2>
+            <h2 class="mb-4 text-lg font-semibold uppercase">Classement des sections par taux d'exécution</h2>
             <ol class="space-y-2">
                 @forelse ($sections as $i => $s)
                     <li class="flex items-center gap-3">
@@ -115,7 +116,7 @@
     {{-- Projets en retard --}}
     @if ($enRetard->isNotEmpty())
         <section class="carte mt-6">
-            <h2 class="border-b border-slate-200 px-5 py-3 font-semibold text-red-800">⚠ Projets en retard</h2>
+            <h2 class="flex items-center gap-2 border-b border-red-100 bg-red-50 px-5 py-3 text-lg font-semibold uppercase text-red-800">⚠ Projets en retard</h2>
             <div class="overflow-x-auto">
                 <table class="tableau">
                     <thead class="bg-slate-50"><tr><th>Projet</th><th>Structure</th><th>Responsable</th><th>Échéance</th><th>Taux</th></tr></thead>
@@ -144,7 +145,7 @@
         @endif
         @if ($mesProjets->isNotEmpty())
             <section class="carte">
-                <h2 class="border-b border-slate-200 px-5 py-3 font-semibold">Mes projets</h2>
+                <h2 class="border-b border-fond-bord px-5 py-3 text-lg font-semibold uppercase">Mes projets</h2>
                 <ul class="divide-y divide-slate-100">
                     @foreach ($mesProjets as $p)
                         <li class="flex items-center justify-between gap-4 px-5 py-3">
