@@ -3,19 +3,28 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Etape;
+use App\Models\PieceJointe;
 use App\Models\Projet;
 use App\Models\User;
 use App\Notifications\EtapeTermineeNotification;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 /**
  * Gestion des étapes d'un projet sans rechargement de la page :
- * ajout, modification, suppression, tri par glisser-déposer, cochage avec date et commentaire.
+ * ajout, modification, suppression, tri par glisser-déposer, cochage avec date, commentaire
+ * et pièces jointes justificatives (plusieurs fichiers par étape, visualisables sur place).
  */
 class EtapesProjet extends Component
 {
+    use WithFileUploads;
+
+    public const MAX_FICHIERS = 10;
+
+    public const TAILLE_MAX_KO = 10240;
+
     public Projet $projet;
 
     public array $nouvelleEtape = ['libelle' => '', 'poids' => 1];
@@ -27,6 +36,9 @@ class EtapesProjet extends Component
     /** Date et commentaire de chaque étape terminée, modifiables sur place. */
     public array $cochage = [];
 
+    /** Fichiers en cours d'envoi, indexés par identifiant d'étape. */
+    public array $fichiers = [];
+
     public function mount(Projet $projet): void
     {
         $this->projet = $projet;
@@ -36,7 +48,7 @@ class EtapesProjet extends Component
     #[Computed]
     public function etapes()
     {
-        return $this->projet->etapes()->with('validateur')->get();
+        return $this->projet->etapes()->with(['validateur', 'piecesJointes.auteur'])->get();
     }
 
     #[Computed]
@@ -148,6 +160,57 @@ class EtapesProjet extends Component
             'commentaire' => $this->cochage[$id]['commentaire'] ?: null,
         ]);
         $this->rafraichir('Étape mise à jour.');
+    }
+
+    /** Enregistre les fichiers choisis comme justificatifs d'une étape terminée. */
+    public function joindre(int $id): void
+    {
+        $this->authorize('cocherEtapes', $this->projet);
+        $etape = $this->etape($id);
+        abort_unless($etape->est_terminee, 403);
+
+        $this->validate([
+            "fichiers.{$id}" => ['required', 'array', 'min:1', 'max:'.self::MAX_FICHIERS],
+            "fichiers.{$id}.*" => ['file', 'mimes:'.implode(',', PieceJointe::EXTENSIONS_ETAPE), 'max:'.self::TAILLE_MAX_KO],
+        ], [
+            "fichiers.{$id}.max" => 'Vous pouvez joindre au plus '.self::MAX_FICHIERS.' fichiers à la fois.',
+            "fichiers.{$id}.*.mimes" => 'Seuls les documents PDF, Word, Excel, PowerPoint et les images (JPG, PNG, WebP) sont acceptés.',
+            "fichiers.{$id}.*.max" => 'Chaque fichier ne doit pas dépasser 10 Mo.',
+        ], [
+            "fichiers.{$id}" => 'fichiers',
+        ]);
+
+        foreach ($this->fichiers[$id] as $fichier) {
+            $etape->piecesJointes()->create([
+                'projet_id' => $this->projet->id,
+                'nom' => $fichier->getClientOriginalName(),
+                'chemin' => $fichier->store("projets/{$this->projet->id}/etapes/{$etape->id}", 'public'),
+                'taille' => $fichier->getSize(),
+                'mime' => $fichier->getMimeType(),
+                'ajoute_par' => auth()->id(),
+            ]);
+        }
+
+        $nombre = count($this->fichiers[$id]);
+        unset($this->fichiers[$id]);
+        $this->rafraichir($nombre > 1 ? "{$nombre} pièces jointes ajoutées." : 'Pièce jointe ajoutée.');
+    }
+
+    /** L'auteur du fichier ou un gestionnaire des étapes peut le retirer. */
+    public function supprimerPieceJointe(int $id): void
+    {
+        $piece = PieceJointe::query()
+            ->where('projet_id', $this->projet->id)
+            ->whereNotNull('etape_id')
+            ->findOrFail($id);
+
+        abort_unless(
+            $this->peutGerer || ($this->peutCocher && $piece->ajoute_par === auth()->id()),
+            403
+        );
+
+        $piece->delete();
+        $this->rafraichir('Pièce jointe supprimée.');
     }
 
     public function render()

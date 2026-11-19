@@ -10,9 +10,12 @@ use Illuminate\Support\Number;
 
 class PieceJointe extends Model
 {
+    /** Types acceptés pour les justificatifs d'étape : documents bureautiques et photos. */
+    public const EXTENSIONS_ETAPE = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'jpg', 'jpeg', 'png', 'webp'];
+
     protected $table = 'pieces_jointes';
 
-    protected $fillable = ['projet_id', 'nom', 'chemin', 'taille', 'mime', 'ajoute_par'];
+    protected $fillable = ['projet_id', 'etape_id', 'nom', 'chemin', 'taille', 'mime', 'ajoute_par'];
 
     protected function casts(): array
     {
@@ -30,6 +33,11 @@ class PieceJointe extends Model
         return $this->belongsTo(Projet::class);
     }
 
+    public function etape(): BelongsTo
+    {
+        return $this->belongsTo(Etape::class);
+    }
+
     public function auteur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'ajoute_par');
@@ -43,5 +51,21 @@ class PieceJointe extends Model
     protected function tailleLisible(): Attribute
     {
         return Attribute::get(fn () => Number::fileSize($this->taille, precision: 1));
+    }
+
+    protected function estImage(): Attribute
+    {
+        return Attribute::get(fn () => str_starts_with((string) $this->mime, 'image/'));
+    }
+
+    protected function estPdf(): Attribute
+    {
+        return Attribute::get(fn () => $this->mime === 'application/pdf');
+    }
+
+    /** Le navigateur sait afficher le fichier sans le télécharger (PDF, images). */
+    protected function apercuPossible(): Attribute
+    {
+        return Attribute::get(fn () => $this->est_image || $this->est_pdf);
     }
 }

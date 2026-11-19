@@ -103,6 +103,9 @@
                             @foreach ($projet->piecesJointes as $pj)
                                 <li class="flex items-center justify-between gap-2 px-3 py-2 text-sm">
                                     <a href="{{ route('admin.projets.pieces-jointes.show', [$projet, $pj]) }}" class="truncate text-dnh-700 hover:underline">📎 {{ $pj->nom }}</a>
+                                    @if ($pj->apercu_possible)
+                                        <a href="{{ route('admin.projets.pieces-jointes.apercu', [$projet, $pj]) }}" target="_blank" rel="noopener" class="shrink-0 text-xs text-dnh-700 hover:underline">Voir</a>
+                                    @endif
                                     <span class="shrink-0 text-xs text-slate-500">{{ $pj->taille_lisible }}</span>
                                     @if ($peutModifier)
                                         <button type="submit" form="supprimer-pj-{{ $pj->id }}" class="shrink-0 text-xs text-red-700 hover:underline">Supprimer</button>

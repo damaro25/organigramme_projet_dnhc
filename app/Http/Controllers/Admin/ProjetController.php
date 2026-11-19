@@ -96,7 +96,7 @@ class ProjetController extends Controller
     public function destroy(Projet $projet): RedirectResponse
     {
         $this->authorize('delete', $projet);
-        $projet->piecesJointes->each->delete();
+        $projet->toutesPiecesJointes->each->delete();
         $projet->delete();
 
         return redirect()->route('admin.projets.index')->with('succes', 'Le projet a été supprimé.');
@@ -132,6 +132,18 @@ class ProjetController extends Controller
         abort_unless($pieceJointe->projet_id === $projet->id, 404);
 
         return Storage::disk('public')->download($pieceJointe->chemin, $pieceJointe->nom);
+    }
+
+    /** Affiche le fichier dans le navigateur (PDF, images) au lieu de le télécharger. */
+    public function apercuPieceJointe(Projet $projet, PieceJointe $pieceJointe): StreamedResponse
+    {
+        $this->authorize('view', $projet);
+        abort_unless($pieceJointe->projet_id === $projet->id && $pieceJointe->apercu_possible, 404);
+
+        return Storage::disk('public')->response($pieceJointe->chemin, $pieceJointe->nom, [
+            'Content-Type' => $pieceJointe->mime,
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 
     public function supprimerPieceJointe(Projet $projet, PieceJointe $pieceJointe): RedirectResponse

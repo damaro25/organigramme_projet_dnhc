@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -32,6 +33,9 @@ class Etape extends Model
         static::creating(function (self $etape) {
             $etape->ordre ??= (int) static::where('projet_id', $etape->projet_id)->max('ordre') + 1;
         });
+
+        // Supprime les fichiers des justificatifs (la base les supprimerait en cascade, pas le disque).
+        static::deleting(fn (self $etape) => $etape->piecesJointes()->get()->each->delete());
 
         // Cohérence : une étape terminée a toujours une date, une étape décochée n'en a plus.
         static::saving(function (self $etape) {
@@ -68,6 +72,12 @@ class Etape extends Model
     public function validateur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'valide_par');
+    }
+
+    /** Justificatifs joints lors de la validation de l'étape. */
+    public function piecesJointes(): HasMany
+    {
+        return $this->hasMany(PieceJointe::class)->latest('id');
     }
 
     /** Marque l'étape comme terminée. */

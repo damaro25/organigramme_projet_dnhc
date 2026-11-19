@@ -77,7 +77,14 @@ class Projet extends Model
         return $this->hasMany(Etape::class)->orderBy('ordre');
     }
 
+    /** Documents généraux du projet (hors justificatifs d'étapes). */
     public function piecesJointes(): HasMany
+    {
+        return $this->hasMany(PieceJointe::class)->whereNull('etape_id');
+    }
+
+    /** Tous les fichiers du projet, y compris ceux joints aux étapes. */
+    public function toutesPiecesJointes(): HasMany
     {
         return $this->hasMany(PieceJointe::class);
     }
