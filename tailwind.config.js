@@ -30,6 +30,15 @@ export default {
                     jaune: '#fcd116',
                     vert: '#009460',
                 },
+                // Fonds neutres légèrement teintés de vert : moins éblouissants que le
+                // blanc pur sur de grandes surfaces (grand écran, salle de réunion),
+                // tout en restant dans le blanc et le gris de la charte.
+                fond: {
+                    DEFAULT: '#f2f4f1', // fond des pages
+                    toile: '#e7ece7',   // fond de l'arbre, sur lequel les cartes blanches ressortent
+                    point: '#cbd5cd',   // trame de points de la toile
+                    bord: '#d9e0da',    // bordures des cartes
+                },
                 // Couleur principale de l'application : le vert national (500) et ses
                 // nuances foncées, la charte recommandant un fond blanc ou vert foncé.
                 dnh: {

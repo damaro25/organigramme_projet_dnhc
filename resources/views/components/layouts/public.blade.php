@@ -7,7 +7,7 @@
     <title>{{ $titre ?? 'Organigramme' }} – Direction Nationale des Hydrocarbures</title>
     @vite(['resources/css/app.css', 'resources/js/organigramme.js'])
 </head>
-<body class="h-full bg-slate-100 font-sans text-slate-900 antialiased">
+<body class="h-full bg-fond font-sans text-slate-800 antialiased">
     <div class="flex h-full flex-col">
         <header class="bg-white shadow-sm">
             <div class="flex items-center gap-4 px-4 py-2 lg:px-6">

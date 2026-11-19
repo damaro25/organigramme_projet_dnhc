@@ -12,7 +12,7 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <x-tricolore class="fixed inset-x-0 top-0 z-10" />
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-10 pb-6 sm:pt-6 bg-slate-100">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-10 pb-6 sm:pt-6 bg-fond">
             <a href="/">
                 <x-bandeau-republique variante="centre" />
             </a>

@@ -4,7 +4,7 @@
      @keydown.escape.window="fermerFiche()">
 
     {{-- Barre d'outils --}}
-    <div class="z-20 flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white px-4 py-2 lg:px-6">
+    <div class="z-20 flex flex-wrap items-center gap-2 border-b border-fond-bord bg-white px-4 py-2 lg:px-6">
         <div class="relative w-full sm:w-80">
             <label for="recherche-agent" class="sr-only">Rechercher un agent</label>
             <input id="recherche-agent" type="search" x-model="recherche" @input.debounce.150ms="chercher()"
@@ -53,7 +53,7 @@
 
     {{-- Arbre --}}
     <div class="relative min-h-0 flex-1">
-        <div x-ref="arbre" class="h-full w-full"></div>
+        <div x-ref="arbre" class="toile h-full w-full"></div>
         <div x-show="chargement" class="absolute inset-0 flex items-center justify-center text-slate-500">Chargement de l'organigramme…</div>
         <div x-show="erreur" x-cloak class="absolute inset-0 flex items-center justify-center text-red-700" x-text="erreur"></div>
     </div>
