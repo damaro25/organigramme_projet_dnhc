@@ -13,7 +13,7 @@ L'interface est entièrement en français.
 
 | Côté serveur | Côté navigateur |
 | --- | --- |
-| Laravel 12, PHP 8.2+ | Blade, Livewire 3, Alpine.js, Tailwind CSS |
+| Laravel 13, PHP 8.3+ | Blade, Livewire 3, Alpine.js, Tailwind CSS |
 | spatie/laravel-permission (rôles) | d3-org-chart (arbre) |
 | spatie/laravel-activitylog (journal) | Cropper.js (recadrage des photos) |
 | intervention/image v3 (photos WebP) | SortableJS (ordre des étapes et structures) |
@@ -21,7 +21,7 @@ L'interface est entièrement en français.
 
 ## Prérequis
 
-- PHP **8.2 ou plus** avec les extensions `gd` (avec prise en charge **WebP**), `mbstring`, `pdo_mysql` (ou `pdo_sqlite`), `fileinfo`, `zip`
+- PHP **8.3 ou plus** avec les extensions `gd` (avec prise en charge **WebP**), `mbstring`, `pdo_mysql` (ou `pdo_sqlite`), `fileinfo`, `zip`
 - Composer 2
 - Node.js 20 ou plus et npm
 - MySQL 8 / MariaDB 10.6 ou plus (SQLite convient pour un essai)
