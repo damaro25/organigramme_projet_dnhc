@@ -145,25 +145,50 @@
                                 </div>
                             @endunless
 
-                            <div class="mt-3" x-data="{ envoi: false, progression: 0 }"
-                                 x-on:livewire-upload-start="envoi = true" x-on:livewire-upload-finish="envoi = false"
-                                 x-on:livewire-upload-error="envoi = false" x-on:livewire-upload-progress="progression = $event.detail.progress">
-                                <label for="validation-fichiers-{{ $etape->id }}" class="etiquette">
+                            {{-- Fichiers : chaque sélection ou dépôt s'ajoute à la liste, pour joindre plusieurs
+                                 fichiers à la fois, y compris venant de dossiers différents. --}}
+                            <div class="mt-3"
+                                 x-data="{
+                                    envoi: false, progression: 0, survol: false,
+                                    deposer(fichiers) {
+                                        if (! fichiers.length) return;
+                                        this.envoi = true; this.progression = 0;
+                                        this.$wire.uploadMultiple('nouveauxFichiers', fichiers,
+                                            () => { this.envoi = false },
+                                            () => { this.envoi = false },
+                                            (e) => { this.progression = e.detail.progress });
+                                    },
+                                 }"
+                                 x-on:livewire-upload-start="envoi = true; progression = 0"
+                                 x-on:livewire-upload-finish="envoi = false; $refs.champ.value = ''"
+                                 x-on:livewire-upload-error="envoi = false; $refs.champ.value = ''"
+                                 x-on:livewire-upload-progress="progression = $event.detail.progress">
+                                <p class="etiquette">
                                     Pièces jointes <span class="font-normal text-slate-500">({{ $etape->est_terminee ? 'au moins une' : 'facultatif' }}, {{ \App\Livewire\Admin\EtapesProjet::MAX_FICHIERS }} au plus, 10 Mo chacune)</span>
+                                </p>
+                                <label for="validation-fichiers-{{ $etape->id }}"
+                                       x-on:dragover.prevent="survol = true" x-on:dragleave.prevent="survol = false"
+                                       x-on:drop.prevent="survol = false; deposer([...$event.dataTransfer.files])"
+                                       :class="survol ? 'border-dnh-500 bg-white' : 'border-dnh-200 bg-white/60 hover:border-dnh-400'"
+                                       class="mt-1 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed px-4 py-5 text-center transition">
+                                    <svg class="h-7 w-7 text-dnh-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+                                    <span class="text-sm font-medium text-dnh-950">Glissez vos fichiers ici, ou <span class="text-dnh-700 underline">parcourez</span></span>
+                                    <span class="text-xs text-slate-500">Sélectionnez-en plusieurs à la fois (Ctrl ou Maj) ; chaque nouvelle sélection s'ajoute à la liste.</span>
+                                    <input id="validation-fichiers-{{ $etape->id }}" x-ref="champ" type="file" multiple wire:model="nouveauxFichiers"
+                                           accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods" class="sr-only">
                                 </label>
-                                <input id="validation-fichiers-{{ $etape->id }}" type="file" multiple wire:model="fichiers"
-                                       accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods"
-                                       class="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-dnh-950 file:px-3 file:py-2 file:font-titre file:text-sm file:font-semibold file:uppercase file:tracking-wider file:text-white hover:file:bg-dnh-700">
                                 <div x-show="envoi" x-cloak class="mt-2 h-1.5 overflow-hidden rounded-full bg-dnh-100" role="progressbar" :aria-valuenow="progression" aria-valuemin="0" aria-valuemax="100">
                                     <div class="h-full rounded-full bg-energie transition-all" :style="`width: ${progression}%`"></div>
                                 </div>
                                 @error('fichiers') <p class="mt-1 text-xs text-red-700">{{ $message }}</p> @enderror
                                 @error('fichiers.*') <p class="mt-1 text-xs text-red-700">{{ $message }}</p> @enderror
+                                @error('nouveauxFichiers.*') <p class="mt-1 text-xs text-red-700">{{ $message }}</p> @enderror
 
                                 @if ($fichiers)
-                                    <ul class="mt-2 space-y-1 text-xs">
+                                    <p class="mt-2 text-xs font-medium text-dnh-950">{{ count($fichiers) }} fichier(s) prêt(s) à joindre</p>
+                                    <ul class="mt-1 space-y-1 text-xs">
                                         @foreach ($fichiers as $i => $fichier)
-                                            <li wire:key="fichier-{{ $i }}" class="flex items-center justify-between gap-2 rounded bg-white px-2 py-1 ring-1 ring-fond-bord">
+                                            <li wire:key="fichier-{{ $i }}-{{ $fichier->getFilename() }}" class="flex items-center justify-between gap-2 rounded bg-white px-2 py-1 ring-1 ring-fond-bord">
                                                 <span class="truncate">📎 {{ $fichier->getClientOriginalName() }} <span class="text-slate-500">· {{ \Illuminate\Support\Number::fileSize($fichier->getSize(), precision: 1) }}</span></span>
                                                 <button type="button" wire:click="retirerFichier({{ $i }})" class="shrink-0 text-slate-400 hover:text-red-600" aria-label="Retirer {{ $fichier->getClientOriginalName() }}">✕</button>
                                             </li>
@@ -173,7 +198,7 @@
                             </div>
 
                             <div class="mt-4 flex flex-wrap gap-2">
-                                <button class="btn-primaire py-1.5" wire:loading.attr="disabled" wire:target="fichiers,valider">
+                                <button class="btn-primaire py-1.5" wire:loading.attr="disabled" wire:target="nouveauxFichiers,valider">
                                     <span wire:loading.remove wire:target="valider">{{ $etape->est_terminee ? 'Joindre' : 'Valider l\'étape' }}</span>
                                     <span wire:loading wire:target="valider">Enregistrement…</span>
                                 </button>

@@ -42,8 +42,16 @@ class EtapesProjet extends Component
 
     public array $validation = ['date_realisation' => null, 'commentaire' => ''];
 
-    /** @var array<int, \Livewire\Features\SupportFileUploads\TemporaryUploadedFile> */
+    /** @var array<int, \Livewire\Features\SupportFileUploads\TemporaryUploadedFile> fichiers prêts à joindre */
     public array $fichiers = [];
+
+    /**
+     * Dernière sélection (champ fichier ou glisser-déposer) : elle s'ajoute à $fichiers
+     * au lieu de la remplacer, pour joindre des fichiers venant de plusieurs dossiers.
+     *
+     * @var array<int, \Livewire\Features\SupportFileUploads\TemporaryUploadedFile>
+     */
+    public array $nouveauxFichiers = [];
 
     public function mount(Projet $projet): void
     {
@@ -167,8 +175,33 @@ class EtapesProjet extends Component
 
     public function fermerValidation(): void
     {
-        $this->reset('enValidation', 'fichiers');
+        $this->reset('enValidation', 'fichiers', 'nouveauxFichiers');
         $this->resetValidation();
+    }
+
+    /** Ajoute la nouvelle sélection aux fichiers déjà choisis (sans doublon, dans la limite autorisée). */
+    public function updatedNouveauxFichiers(): void
+    {
+        $this->validate(
+            ['nouveauxFichiers.*' => self::regleFichier()],
+            self::messagesFichier('nouveauxFichiers'),
+        );
+
+        $deja = collect($this->fichiers)->map(fn ($f) => $f->getClientOriginalName().'|'.$f->getSize())->all();
+        foreach ($this->nouveauxFichiers as $fichier) {
+            $cle = $fichier->getClientOriginalName().'|'.$fichier->getSize();
+            if (in_array($cle, $deja, true)) {
+                continue;
+            }
+            if (count($this->fichiers) >= self::MAX_FICHIERS) {
+                $this->addError('fichiers', 'Vous pouvez joindre au plus '.self::MAX_FICHIERS.' fichiers à la fois.');
+                break;
+            }
+            $this->fichiers[] = $fichier;
+            $deja[] = $cle;
+        }
+
+        $this->nouveauxFichiers = [];
     }
 
     public function retirerFichier(int $index): void
@@ -188,13 +221,12 @@ class EtapesProjet extends Component
             'validation.date_realisation' => [$dejaTerminee ? 'nullable' : 'required', 'date', 'before_or_equal:today'],
             'validation.commentaire' => ['nullable', 'string', 'max:1000'],
             'fichiers' => [$dejaTerminee ? 'required' : 'nullable', 'array', 'max:'.self::MAX_FICHIERS],
-            'fichiers.*' => ['file', 'mimes:'.PieceJointe::EXTENSIONS, 'max:'.self::TAILLE_MAX_KO],
+            'fichiers.*' => self::regleFichier(),
         ], [
             'validation.date_realisation.before_or_equal' => 'La date de réalisation ne peut pas être dans le futur.',
             'fichiers.required' => 'Choisissez au moins un fichier à joindre.',
             'fichiers.max' => 'Vous pouvez joindre au plus '.self::MAX_FICHIERS.' fichiers à la fois.',
-            'fichiers.*.mimes' => 'Formats acceptés : PDF, images (JPG, PNG, WebP), Word, Excel, PowerPoint, OpenDocument.',
-            'fichiers.*.max' => 'Chaque fichier ne doit pas dépasser 10 Mo.',
+            ...self::messagesFichier('fichiers'),
         ], [
             'validation.date_realisation' => 'date de réalisation',
             'validation.commentaire' => 'commentaire',
@@ -261,6 +293,20 @@ class EtapesProjet extends Component
             'commentaire' => $this->cochage[$id]['commentaire'] ?: null,
         ]);
         $this->rafraichir('Étape mise à jour.');
+    }
+
+    private static function regleFichier(): array
+    {
+        return ['file', 'mimes:'.PieceJointe::EXTENSIONS, 'max:'.self::TAILLE_MAX_KO];
+    }
+
+    private static function messagesFichier(string $champ): array
+    {
+        return [
+            "{$champ}.*.mimes" => 'Formats acceptés : PDF, images (JPG, PNG, WebP), Word, Excel, PowerPoint, OpenDocument.',
+            "{$champ}.*.max" => 'Chaque fichier ne doit pas dépasser 10 Mo.',
+            "{$champ}.*.file" => 'Le fichier n\'a pas pu être envoyé.',
+        ];
     }
 
     public function render()

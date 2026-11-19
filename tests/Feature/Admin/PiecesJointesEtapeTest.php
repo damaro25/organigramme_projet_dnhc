@@ -64,6 +64,39 @@ class PiecesJointesEtapeTest extends TestCase
         }
     }
 
+    public function test_plusieurs_selections_successives_s_ajoutent_sans_doublon(): void
+    {
+        $etape = $this->projet->etapes()->where('est_terminee', false)->firstOrFail();
+        $pv = UploadedFile::fake()->create('proces-verbal.pdf', 200, 'application/pdf');
+
+        Livewire::actingAs($this->chef)->test(EtapesProjet::class, ['projet' => $this->projet])
+            ->call('ouvrirValidation', $etape->id)
+            // Première sélection : deux fichiers d'un dossier.
+            ->set('nouveauxFichiers', [$pv, UploadedFile::fake()->image('photo-1.jpg')])
+            ->assertCount('fichiers', 2)
+            ->assertSet('nouveauxFichiers', [])
+            // Deuxième sélection, depuis un autre dossier : elle s'ajoute ; le PV déjà choisi n'est pas doublé.
+            ->set('nouveauxFichiers', [UploadedFile::fake()->create('rapport.xlsx', 80), $pv])
+            ->assertCount('fichiers', 3)
+            ->call('retirerFichier', 1)
+            ->assertCount('fichiers', 2)
+            ->call('valider')
+            ->assertHasNoErrors();
+
+        $this->assertEqualsCanonicalizing(['proces-verbal.pdf', 'rapport.xlsx'], $etape->fresh()->piecesJointes->pluck('nom')->all());
+    }
+
+    public function test_un_format_refuse_dans_une_selection_est_signale(): void
+    {
+        $etape = $this->projet->etapes()->where('est_terminee', false)->firstOrFail();
+
+        Livewire::actingAs($this->chef)->test(EtapesProjet::class, ['projet' => $this->projet])
+            ->call('ouvrirValidation', $etape->id)
+            ->set('nouveauxFichiers', [UploadedFile::fake()->create('script.exe', 10, 'application/octet-stream')])
+            ->assertHasErrors(['nouveauxFichiers.0'])
+            ->assertCount('fichiers', 0);
+    }
+
     public function test_valider_sans_piece_jointe_reste_possible(): void
     {
         $etape = $this->projet->etapes()->where('est_terminee', false)->firstOrFail();
