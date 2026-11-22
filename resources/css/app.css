@@ -79,3 +79,13 @@
     .kpi-libelle { @apply font-titre text-[13px] font-semibold uppercase tracking-wider text-slate-500; }
     .kpi-valeur { @apply mt-1 font-titre text-4xl font-bold tabular-nums; }
 }
+
+/* Les fenêtres et panneaux s'ouvrent sous les menus, jamais par-dessus.
+   --menu-haut : hauteur de la barre supérieure (mesurée par partials/couches-menu).
+   --menu-gauche : largeur du menu latéral en grand écran. */
+:root { --menu-haut: 0px; --menu-gauche: 0px; }
+@media (min-width: 1024px) {
+    body.avec-menu-lateral { --menu-gauche: 16rem; }
+}
+.sous-menu { top: var(--menu-haut); left: var(--menu-gauche); }
+.sous-menu-haut { top: var(--menu-haut); }

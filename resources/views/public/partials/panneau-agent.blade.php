@@ -1,9 +1,9 @@
 {{-- Panneau latéral : fiche de l'agent et liste de ses projets (données chargées en JSON). --}}
-<div x-show="panneau.ouvert" x-cloak class="fixed inset-0 z-40 bg-dnh-950/40 lg:hidden" @click="fermerFiche()"></div>
+<div x-show="panneau.ouvert" x-cloak class="sous-menu fixed bottom-0 right-0 z-superpose bg-dnh-950/40 lg:hidden" @click="fermerFiche()"></div>
 <aside x-show="panneau.ouvert" x-cloak
        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
-       class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-flottant"
+       class="sous-menu-haut fixed bottom-0 right-0 z-superpose flex w-full max-w-lg flex-col bg-white shadow-flottant"
        role="dialog" aria-modal="true" aria-label="Fiche de l'agent">
 
     <div class="flex items-center justify-between bg-dnh-950 px-5 py-3 text-white">

@@ -12,7 +12,7 @@
     <div class="flex h-full flex-col">
         {{-- En-tête : bandeau institutionnel (armoiries sur fond blanc, charte du
              Gouvernement), puis barre marine aux couleurs de la DNH. --}}
-        <header class="relative z-30">
+        <header data-menu-haut class="relative z-entete">
             <div class="hidden items-center justify-between gap-4 bg-white px-4 py-1.5 lg:flex lg:px-6">
                 <span class="flex items-center gap-2 text-[11px] text-slate-600">
                     <img src="{{ \App\Support\Armoiries::url() }}" alt="Armoiries de la République de Guinée" class="h-6 w-auto object-contain">
@@ -52,5 +52,6 @@
 
         <x-pied-officiel />
     </div>
+@include('partials.couches-menu')
 </body>
 </html>

@@ -17,6 +17,13 @@ export default {
 
     theme: {
         extend: {
+            // Couches : les menus passent toujours au-dessus du reste de la page.
+            zIndex: {
+                superpose: '50',   // fenêtres, fiche de l'agent, notifications
+                entete: '60',      // barre supérieure de l'administration, en-tête public
+                'menu-fond': '65', // voile du menu mobile
+                menu: '70',        // menu latéral
+            },
             // Identité visuelle de la Direction Nationale des Hydrocarbures : bleu marine
             // du logo (#000B3D), blanc, typographie sans-serif condensée en capitales.
             // Les couleurs nationales restent disponibles pour la bande tricolore et les
