@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="République de Guinée">
-  <clipPath id="c"><rect width="48" height="48" rx="8"/></clipPath>
-  <g clip-path="url(#c)">
-    <rect width="16" height="48" fill="#ce1126"/>
-    <rect x="16" width="16" height="48" fill="#fcd116"/>
-    <rect x="32" width="16" height="48" fill="#009460"/>
-  </g>
-</svg>

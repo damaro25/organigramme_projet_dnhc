@@ -1,0 +1,1 @@
+@include('errors.gabarit', ['code' => 500, 'titre' => 'Erreur du serveur', 'message' => "Une erreur inattendue s'est produite. Elle est enregistrée dans le journal de l'application. Réessayez dans quelques instants ; si elle persiste, signalez-la au service Informatique."])

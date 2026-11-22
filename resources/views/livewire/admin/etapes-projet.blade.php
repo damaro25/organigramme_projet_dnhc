@@ -1,7 +1,7 @@
 <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
         <div>
-            <h2 class="text-base font-semibold text-slate-900">Étapes du projet</h2>
+            <h2 class="text-base titre-section text-slate-900">Étapes du projet</h2>
             <p class="text-xs text-slate-500">Le taux d'exécution est pondéré par le poids de chaque étape.</p>
         </div>
         @php($couleur = \App\Models\Projet::couleurPourTaux($this->taux))

@@ -53,20 +53,25 @@
 
     {{-- Indicateurs --}}
     <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-7">
-        <div class="carte p-5 xl:col-span-2">
-            <p class="text-xs font-medium uppercase text-slate-500">Taux d'exécution global de la DNH</p>
-            <p class="mt-1 text-4xl font-bold text-dnh-800">{{ $tauxGlobal ?? 0 }} %</p>
-            <div class="mt-3"><x-admin-barre-taux :taux="$tauxGlobal" /></div>
-            <p class="mt-2 text-xs text-slate-500">{{ $total }} projet(s) en cours de suivi</p>
+        {{-- Indicateur principal : carte marine, taux en accent « flamme ». --}}
+        <div class="relative col-span-2 overflow-hidden rounded-lg bg-primary-950 p-5 text-white shadow-md xl:col-span-2">
+            <img src="{{ asset('images/symbole-dnh-blanc.svg') }}" alt="" aria-hidden="true" class="pointer-events-none absolute -bottom-6 -right-6 w-40 opacity-[0.06]">
+            <p class="font-display text-xs font-semibold uppercase tracking-titre text-primary-200">Taux d'exécution global</p>
+            <p class="mt-1 font-display text-5xl font-bold text-accent-500">{{ $tauxGlobal ?? 0 }}<span class="text-3xl"> %</span></p>
+            <div class="mt-3 h-2 overflow-hidden rounded-full bg-white/15" role="progressbar" aria-valuenow="{{ $tauxGlobal ?? 0 }}" aria-valuemin="0" aria-valuemax="100" aria-label="Taux d'exécution global">
+                <div class="h-full rounded-full bg-accent-500" style="width: {{ $tauxGlobal ?? 0 }}%"></div>
+            </div>
+            <p class="mt-2 text-xs text-primary-200">{{ $total }} projet(s) en cours de suivi</p>
         </div>
-        <a href="{{ route('admin.projets.index', ['retard' => 1]) }}" class="carte p-5 hover:bg-red-50">
-            <p class="text-xs font-medium uppercase text-slate-500">En retard</p>
-            <p class="mt-1 text-4xl font-bold text-red-700">{{ $enRetard->count() }}</p>
+        <a href="{{ route('admin.projets.index', ['retard' => 1]) }}" class="carte group border-t-4 border-t-danger-600 p-5 transition hover:shadow-md">
+            <p class="font-display text-xs font-semibold uppercase tracking-titre text-slate-600">⚠ En retard</p>
+            <p class="mt-1 font-display text-4xl font-bold text-danger-700">{{ $enRetard->count() }}</p>
         </a>
         @foreach ($parStatut as $ligne)
-            <a href="{{ route('admin.projets.index', ['statut' => $ligne['statut']->value]) }}" class="carte p-5 hover:bg-slate-50">
-                <p class="text-xs font-medium uppercase text-slate-500">{{ $ligne['statut']->libelle() }}</p>
-                <p class="mt-1 text-4xl font-bold text-slate-900">{{ $ligne['nombre'] }}</p>
+            @php($bord = match ($ligne['statut']->value) { 'en_cours' => 'border-t-primary-600', 'termine' => 'border-t-success-600', 'suspendu' => 'border-t-warning-600', default => 'border-t-slate-300' })
+            <a href="{{ route('admin.projets.index', ['statut' => $ligne['statut']->value]) }}" class="carte border-t-4 {{ $bord }} p-5 transition hover:shadow-md">
+                <p class="font-display text-xs font-semibold uppercase tracking-titre text-slate-600">{{ $ligne['statut']->libelle() }}</p>
+                <p class="mt-1 font-display text-4xl font-bold text-primary-950">{{ $ligne['nombre'] }}</p>
             </a>
         @endforeach
     </div>
@@ -74,7 +79,7 @@
     <div class="mt-6 grid gap-6 xl:grid-cols-2">
         {{-- Comparaison des divisions --}}
         <section class="carte p-5">
-            <h2 class="mb-4 font-semibold">Comparaison des divisions</h2>
+            <h2 class="titre-section mb-4">Comparaison des divisions</h2>
             <div class="h-72" x-data="graphiqueDivisions({
                     libelles: @js($divisions->map(fn ($d) => $d['structure']->sigle ?: $d['structure']->nom)),
                     taux: @js($divisions->map(fn ($d) => $d['taux'] ?? 0)),
@@ -100,7 +105,7 @@
 
         {{-- Classement des sections --}}
         <section class="carte p-5">
-            <h2 class="mb-4 font-semibold">Classement des sections par taux d'exécution</h2>
+            <h2 class="titre-section mb-4">Classement des sections par taux d'exécution</h2>
             <ol class="space-y-2">
                 @forelse ($sections as $i => $s)
                     <li class="flex items-center gap-3">
@@ -122,7 +127,7 @@
     {{-- Projets en retard --}}
     @if ($enRetard->isNotEmpty())
         <section class="carte mt-6">
-            <h2 class="border-b border-slate-200 px-5 py-3 font-semibold text-red-800">⚠ Projets en retard</h2>
+            <h2 class="titre-section border-b border-fond-bord px-5 py-3 !text-danger-700">⚠ Projets en retard</h2>
             <div class="overflow-x-auto">
                 <table class="tableau">
                     <thead class="bg-slate-50"><tr><th>Projet</th><th>Structure</th><th>Responsable</th><th>Échéance</th><th>Taux</th></tr></thead>
@@ -151,7 +156,7 @@
         @endif
         @if ($mesProjets->isNotEmpty())
             <section class="carte">
-                <h2 class="border-b border-slate-200 px-5 py-3 font-semibold">Mes projets</h2>
+                <h2 class="border-b border-slate-200 px-5 py-3 titre-section">Mes projets</h2>
                 <ul class="divide-y divide-slate-100">
                     @foreach ($mesProjets as $p)
                         <li class="flex items-center justify-between gap-4 px-5 py-3">

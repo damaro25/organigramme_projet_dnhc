@@ -15,16 +15,16 @@ use Illuminate\Support\Str;
 class OrganigrammeSeeder extends Seeder
 {
     /**
-     * Charte graphique du Gouvernement : rouge, jaune, vert, blanc et gris.
-     * Les divisions reprennent les trois couleurs nationales (le jaune est foncé
-     * pour rester lisible en texte sur fond blanc).
+     * Identité DNH : la direction en marine du logo, une couleur par division,
+     * toutes lisibles en texte sur fond blanc (contraste AA). Le rouge, l'orange et
+     * le vert restent réservés aux taux d'exécution.
      */
     public const COULEURS = [
-        'direction' => '#006a45',
-        'planification' => '#009460',
-        'aval' => '#ce1126',
-        'amont' => '#a37f00',
-        'deconcentre' => '#6b7280',
+        'direction' => '#000b3d',
+        'planification' => '#263f95',
+        'aval' => '#b45309',
+        'amont' => '#0f766e',
+        'deconcentre' => '#64748b',
     ];
 
     public const DIVISIONS = [
@@ -106,7 +106,7 @@ class OrganigrammeSeeder extends Seeder
         foreach (self::SERVICES_RATTACHES as $i => [$nom, $sigle, $groupe, $poste, $responsable]) {
             $service = Structure::create([
                 'nom' => $nom, 'sigle' => $sigle, 'type' => 'service_rattache', 'groupe' => $groupe,
-                'parent_id' => $dnh->id, 'couleur' => $groupe === 'appui_technique' ? '#f3f4f6' : '#006a45',
+                'parent_id' => $dnh->id, 'couleur' => $groupe === 'appui_technique' ? '#f1f5f9' : '#13235c',
                 'ordre' => $i + 1,
             ]);
             $this->agent($service, $poste, $agentDnh, $responsable);

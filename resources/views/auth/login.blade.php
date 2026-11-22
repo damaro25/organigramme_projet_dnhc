@@ -1,4 +1,7 @@
 <x-guest-layout>
+    <h1 class="font-display text-2xl font-semibold uppercase tracking-titre text-primary-950">Connexion</h1>
+    <p class="mb-6 mt-1 text-sm text-slate-600">Accédez à l'espace d'administration avec votre compte.</p>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -27,21 +30,21 @@
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-dnh-600 shadow-sm focus:ring-dnh-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-slate-300 text-primary-950 shadow-sm focus:ring-primary-600" name="remember">
+                <span class="ms-2 text-sm text-slate-700">{{ __('Remember me') }}</span>
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-dnh-500" href="{{ route('password.request') }}">
+        <x-primary-button class="mt-6 w-full py-2.5">
+            {{ __('Log in') }}
+        </x-primary-button>
+
+        @if (Route::has('password.request'))
+            <p class="mt-4 text-center">
+                <a class="text-sm font-medium text-primary-700 underline-offset-2 hover:text-primary-950 hover:underline" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
+            </p>
+        @endif
     </form>
 </x-guest-layout>

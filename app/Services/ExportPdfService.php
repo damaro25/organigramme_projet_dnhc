@@ -27,10 +27,10 @@ class ExportPdfService
     }
 
     /** Photo de l'agent en data URI JPEG, ou l'avatar par défaut. */
-    /** Armoiries officielles si elles ont été déposées dans public/images, sinon l'emplacement provisoire. */
-    public static function armoiries(): string
+    /** Logo de la DNH (version marine, en PNG : rendu fiable par dompdf). */
+    public static function logo(): string
     {
-        return public_path(\App\Support\Armoiries::image());
+        return public_path('images/logo-dnh-marine.png');
     }
 
     public function photo(?Agent $agent, bool $miniature = true, int $taille = 96): string

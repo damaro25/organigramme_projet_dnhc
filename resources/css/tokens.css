@@ -1,0 +1,49 @@
+/*
+ * Design tokens de la Direction Nationale des Hydrocarbures, en variables CSS.
+ * Mêmes valeurs que tailwind.config.js, pour le CSS écrit à la main, le JavaScript
+ * (graphiques, arbre) et les intégrations futures.
+ */
+:root {
+    /* Marine du logo et son échelle */
+    --dnh-primary-50: #eef2fb;
+    --dnh-primary-100: #d9e1f5;
+    --dnh-primary-200: #b5c4eb;
+    --dnh-primary-300: #869ddb;
+    --dnh-primary-400: #5672c6;
+    --dnh-primary-500: #3552ae;
+    --dnh-primary-600: #263f95;
+    --dnh-primary-700: #1c3079;
+    --dnh-primary-800: #13235c;
+    --dnh-primary-900: #0a1747;
+    --dnh-primary-950: #000b3d;
+
+    /* Accent « énergie » (ambre), à petites doses */
+    --dnh-accent-500: #f2a900;
+    --dnh-accent-700: #b45309; /* version texte sur fond clair (AA) */
+
+    /* États (désaturés pour s'accorder au marine) */
+    --dnh-success: #1e7b4f;
+    --dnh-warning: #b45309;
+    --dnh-danger: #b42335;
+    --dnh-info: #2f5bb7;
+
+    /* Neutres et surfaces */
+    --dnh-fond: #f5f7fb;
+    --dnh-fond-toile: #ecf0f7;
+    --dnh-bord: #dde3ee;
+    --dnh-texte: #1e293b;
+    --dnh-texte-secondaire: #475569;
+
+    /* Couleurs nationales (bande tricolore uniquement) */
+    --guinee-rouge: #ce1126;
+    --guinee-jaune: #fcd116;
+    --guinee-vert: #009460;
+
+    /* Typographie */
+    --dnh-police-texte: 'Barlow', ui-sans-serif, system-ui, sans-serif;
+    --dnh-police-titre: 'Barlow Condensed', 'Barlow', ui-sans-serif, system-ui, sans-serif;
+
+    /* Formes */
+    --dnh-rayon: 6px;
+    --dnh-ombre: 0 1px 3px rgb(1 10 58 / 0.08), 0 1px 2px rgb(1 10 58 / 0.04);
+}

@@ -26,6 +26,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:acceder_admin']
     Route::get('/', Admin\TableauDeBordController::class)->name('tableau-de-bord');
 
     Route::get('organigramme', [Admin\OrganigrammeAdminController::class, 'index'])->name('organigramme');
+    // Styleguide interne : couleurs, typographie et composants de l'identité DNH (administrateur).
+    Route::view('styleguide', 'admin.styleguide')->middleware('can:gerer_utilisateurs')->name('styleguide');
     Route::get('organigramme/donnees', [Admin\OrganigrammeAdminController::class, 'donnees'])->name('organigramme.donnees');
 
     Route::resource('agents', Admin\AgentController::class)->except(['show', 'destroy']);

@@ -151,21 +151,20 @@ Les tests utilisent une base SQLite en mémoire (voir `phpunit.xml`) : ils ne to
 - l'envoi, le remplacement et la suppression des photos (`tests/Feature/Admin/PhotoAgentTest.php`) ;
 - l'organigramme public, le tableau de bord, les exports PDF et le journal.
 
-## Charte graphique
+## Identité visuelle
 
-L'interface applique la [charte graphique du Gouvernement de la République de Guinée](https://dgd.gov.gn/wp-content/uploads/2023/10/CHARTE-GRAPHIQUE-RG.pdf) (Cellule de Communication du Gouvernement, 2021) :
+L'interface suit l'identité de la Direction Nationale des Hydrocarbures, construite sur son logo (carte de la Guinée avec une flamme, sur fond bleu marine).
 
-- **Couleurs** : rouge `#ce1126`, jaune `#fcd116`, vert `#009460` (classes Tailwind `guinee-*`), avec du blanc et du gris. La couleur principale de l'application (`dnh-*`, `tailwind.config.js`) est le vert national et ses nuances foncées.
-- **Police** : Century Gothic, installée avec Windows et Microsoft Office. Sur un poste qui ne l'a pas, le navigateur prend une police proche (URW Gothic) ou la police système. Les PDF restent en DejaVu Sans, la seule police fournie avec dompdf qui couvre tous les accents.
-- **En-tête** : armoiries en haut à gauche sur fond blanc, « République de Guinée », la devise « Travail – Justice – Solidarité », le Ministère et la Direction, puis la bande tricolore à bandes égales (`resources/views/components/bandeau-republique.blade.php` et `tricolore.blade.php`). Les PDF reprennent la bande et la devise.
-- **Pied de page** : lien vers le portail officiel du Gouvernement, `gouvernement.gov.gn`.
-- **Divisions** (données de démonstration) : Planification / Économie en vert, Aval en rouge, Amont en jaune foncé (`#a37f00`, plus lisible que le jaune du drapeau en texte sur fond blanc).
-
-## Personnalisation
-
-- **Armoiries** : déposer le fichier officiel fourni par la Cellule de Communication du Gouvernement dans `public/images/armoiries.png` (ou `armoiries.svg`). Il remplace automatiquement l'emplacement provisoire `public/images/logo-ministere.svg` dans l'en-tête, dans les PDF et dans l'icône des onglets du navigateur (en attendant, l'onglet affiche le drapeau national : `public/images/icone-drapeau.svg` et `public/favicon.ico`). La charte interdit de déformer, incliner, recolorer ou ombrer les armoiries, et d'écrire au-dessus ou en dessous.
+- **Couleurs** (`tailwind.config.js` et variables CSS dans `resources/css/tokens.css`) : marine du logo `#000B3D` (`primary-950`) et son échelle `primary-50` à `primary-950` (`dnh-*` en est un alias) ; accent ambre `#F2A900` (`accent-500`), à petites doses, et `accent-700` pour du texte ; couleurs d'état désaturées (`success`, `warning`, `danger`, `info`) ; fonds neutres bleutés (`fond`). Le rouge, l'orange et le vert des taux d'exécution gardent leur sens.
+- **Polices**, auto-hébergées via `@fontsource` (aucun appel à Google) : **Barlow**, la police du logo, pour le texte et les tableaux ; **Barlow Condensed**, en capitales légèrement espacées, pour les titres, la navigation, les boutons et les libellés. Les PDF restent en DejaVu Sans (police fournie avec dompdf).
+- **Formes** : rayons de 4 à 8 px, ombres légères teintées de marine.
+- **Logo** (`public/images/`) : `logo-dnh-blanc.svg` (fonds sombres), `logo-dnh-marine.svg` (fonds clairs), `symbole-dnh-*.svg` (carte et flamme seules), `logo-dnh-marine.png` (PDF). Le symbole a été vectorisé depuis l'image fournie et le texte recomposé en Barlow : remplacer ces fichiers par la version vectorielle officielle si la DNH en dispose. Icônes : `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`.
+- **Composants Blade** : `x-button` (primaire, secondaire, tertiaire, danger, accent ; état de chargement Livewire), `x-input` (libellé, aide, erreur), `x-card`, `x-badge`, `x-alert`, `x-logo-dnh` ; classes `btn-*`, `champ`, `etiquette`, `tableau`, `titre-page`, `badge`.
+- **Mentions officielles** : « République de Guinée », devise et ministère de tutelle (`x-bandeau-republique`), fine bande tricolore (`x-tricolore`), pied de page avec le portail officiel du Gouvernement.
+- **Styleguide** : `/admin/styleguide` (administrateur) présente les couleurs, la typographie et tous les composants.
+- **Pages d'erreur** 403, 404, 419, 500 et 503 aux couleurs de la DNH (`resources/views/errors`).
+- **Divisions** (données de démonstration) : Planification / Économie `#263F95`, Aval `#B45309`, Amont `#0F766E`, toutes lisibles en texte sur fond blanc. `php artisan migrate` repeint les couleurs par défaut d'une base existante sans toucher aux couleurs choisies à la main (menu *Structures*).
 - **Avatar par défaut** : `public/images/avatar-defaut.svg` (écran) et `avatar-defaut.png` (PDF).
-- **Couleurs des divisions** : menu *Structures* de l'administration. Une base déjà remplie garde ses anciennes couleurs : les modifier dans ce menu, ou relancer `php artisan migrate:fresh --seed` sur une base de démonstration.
 
 ## Pièces jointes
 

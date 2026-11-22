@@ -11,7 +11,7 @@
         {{-- Photo --}}
         @unless ($creation)
             <section class="carte p-5 lg:order-2">
-                <h2 class="mb-3 font-semibold">Photo</h2>
+                <h2 class="mb-3 titre-section">Photo</h2>
                 @if ($peutModifierPhoto)
                     <div x-data="editeurPhoto({ urlEnvoi: @js(route('admin.agents.photo.store', $agent)), urlSuppression: @js(route('admin.agents.photo.destroy', $agent)), photo: @js($agent->photo_url), avatarDefaut: @js(asset(\App\Models\Agent::AVATAR_DEFAUT)), aPhoto: @js((bool) $agent->photo) })">
                         @include('admin.agents.partials.editeur-photo-corps')
@@ -106,7 +106,7 @@
               onsubmit="return confirm(@js($agent->actif ? 'Désactiver cet agent ? Il disparaîtra de l\'organigramme mais son historique sera conservé.' : 'Réactiver cet agent ?'))">
             @csrf @method('PATCH')
             <div>
-                <h2 class="font-semibold">{{ $agent->actif ? 'Désactiver l\'agent' : 'Réactiver l\'agent' }}</h2>
+                <h2 class="titre-section">{{ $agent->actif ? 'Désactiver l\'agent' : 'Réactiver l\'agent' }}</h2>
                 <p class="text-sm text-slate-500">{{ $agent->actif ? 'En cas de départ ou de mutation. L\'agent est retiré de l\'organigramme, son historique est conservé et son compte est désactivé.' : 'L\'agent réapparaîtra dans l\'organigramme.' }}</p>
             </div>
             <button class="{{ $agent->actif ? 'btn-danger' : 'btn-secondaire' }}">{{ $agent->actif ? 'Désactiver' : 'Réactiver' }}</button>

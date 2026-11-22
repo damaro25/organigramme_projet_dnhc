@@ -21,7 +21,7 @@ class Structure extends Model
     use HasFactory, LogsActivity;
 
     /** Couleur par défaut quand ni la structure ni sa division n'en ont. */
-    public const COULEUR_DEFAUT = '#006a45';
+    public const COULEUR_DEFAUT = '#1c3079';
 
     protected $fillable = [
         'nom', 'sigle', 'type', 'groupe', 'parent_id', 'type_lien', 'couleur', 'ordre',

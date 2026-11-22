@@ -214,13 +214,13 @@ Alpine.data('graphiqueDivisions', ({ libelles, taux, nombres, couleurs }) => ({
                 labels: libelles,
                 datasets: [
                     { label: "Taux d'exécution moyen (%)", data: taux, backgroundColor: couleurs, borderRadius: 6, yAxisID: 'y' },
-                    { label: 'Nombre de projets', data: nombres, type: 'line', borderColor: '#374151', backgroundColor: '#374151', pointRadius: 5, yAxisID: 'y1' },
+                    { label: 'Nombre de projets', data: nombres, type: 'line', borderColor: '#f2a900', backgroundColor: '#f2a900', pointRadius: 5, borderWidth: 3, yAxisID: 'y1' },
                 ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (c) => `${c.dataset.label} : ${c.formattedValue}` } } },
+                plugins: { legend: { position: 'bottom', labels: { font: { family: 'Barlow' } } }, tooltip: { callbacks: { label: (c) => `${c.dataset.label} : ${c.formattedValue}` } } },
                 scales: {
                     y: { min: 0, max: 100, ticks: { callback: (v) => v + ' %' }, title: { display: true, text: 'Taux' } },
                     y1: { position: 'right', min: 0, ticks: { precision: 0 }, grid: { drawOnChartArea: false }, title: { display: true, text: 'Projets' } },

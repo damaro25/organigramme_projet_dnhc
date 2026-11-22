@@ -33,7 +33,7 @@
 @include('pdf._republique')
 <table class="entete">
     <tr>
-        <td style="width: 18mm"><img src="{{ \App\Services\ExportPdfService::armoiries() }}" style="height: 14mm" alt=""></td>
+        <td style="width: 60mm"><img src="{{ \App\Services\ExportPdfService::logo() }}" style="height: 12.5mm" alt="Direction Nationale des Hydrocarbures"></td>
         <td>
             <div class="titre">Organigramme de la Direction Nationale des Hydrocarbures</div>
             <div class="sous-titre">Personnel, structures et taux moyen d'exécution des projets</div>

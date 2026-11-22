@@ -1,0 +1,1 @@
+@include('errors.gabarit', ['code' => 503, 'titre' => 'Maintenance en cours', 'message' => "L'application est momentanément indisponible pour maintenance. Merci de réessayer un peu plus tard.", 'retour' => false])

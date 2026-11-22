@@ -1,7 +1,7 @@
-{{-- Pied de page : la charte demande un lien vers le portail officiel du Gouvernement. --}}
-<footer {{ $attributes->merge(['class' => 'border-t border-fond-bord bg-white px-4 py-2 text-xs text-slate-500 lg:px-6']) }}>
-    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-        <span>République de Guinée · Ministère de l'Assainissement, de l'Hydraulique et des Hydrocarbures · Direction Nationale des Hydrocarbures</span>
-        <a href="https://gouvernement.gov.gn" target="_blank" rel="noopener" class="font-medium text-dnh-700 hover:underline">Portail officiel du Gouvernement ↗</a>
+{{-- Pied de page sobre, marine : institution de tutelle, © DNH et portail officiel du Gouvernement. --}}
+<footer {{ $attributes->merge(['class' => 'bg-primary-950 px-4 py-3 text-xs text-primary-200 lg:px-8']) }}>
+    <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
+        <span>© {{ now()->year }} Direction Nationale des Hydrocarbures · République de Guinée · Ministère de l'Assainissement, de l'Hydraulique et des Hydrocarbures</span>
+        <a href="https://gouvernement.gov.gn" target="_blank" rel="noopener" class="font-medium text-white hover:text-accent-500 hover:underline">Portail officiel du Gouvernement ↗</a>
     </div>
 </footer>

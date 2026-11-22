@@ -6,14 +6,14 @@
 @include('pdf._styles')
 <style>
     body { font-size: 9pt; }
-    .identite { width: 100%; background: #ebf7f1; border-radius: 4px; margin-bottom: 5mm; }
+    .identite { width: 100%; background: #eef2fb; border-radius: 4px; margin-bottom: 5mm; }
     .identite td { padding: 3mm; vertical-align: middle; }
     .identite img { width: 28mm; height: 28mm; border-radius: 14mm; }
     .identite .nom { font-size: 14pt; font-weight: bold; }
-    .identite .poste { font-size: 10pt; color: #006a45; font-weight: bold; }
+    .identite .poste { font-size: 10pt; color: #1c3079; font-weight: bold; }
     .synthese { text-align: center; }
     .synthese .chiffre { font-size: 20pt; font-weight: bold; }
-    h2 { font-size: 11pt; color: #006a45; border-bottom: 1px solid #cbd5e1; padding-bottom: 1mm; margin: 5mm 0 3mm; }
+    h2 { font-size: 11pt; color: #000b3d; text-transform: uppercase; border-bottom: 1px solid #cbd5e1; padding-bottom: 1mm; margin: 5mm 0 3mm; }
     .projet { border: 1px solid #e2e8f0; border-radius: 4px; padding: 3mm; margin-bottom: 3mm; page-break-inside: avoid; }
     .projet.retard { border-color: #fca5a5; background: #fef2f2; }
     .projet .titre-projet { font-size: 10pt; font-weight: bold; }
@@ -30,7 +30,7 @@
 @include('pdf._republique')
 <table class="entete">
     <tr>
-        <td style="width: 16mm"><img src="{{ \App\Services\ExportPdfService::armoiries() }}" style="height: 12mm" alt=""></td>
+        <td style="width: 52mm"><img src="{{ \App\Services\ExportPdfService::logo() }}" style="height: 11mm" alt="Direction Nationale des Hydrocarbures"></td>
         <td>
             <div class="titre">Fiche projets de l'agent</div>
             <div class="sous-titre">Direction Nationale des Hydrocarbures</div>

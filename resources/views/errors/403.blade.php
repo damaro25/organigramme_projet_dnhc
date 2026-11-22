@@ -1,0 +1,1 @@
+@include('errors.gabarit', ['code' => 403, 'titre' => 'Accès refusé', 'message' => "Votre compte n'a pas accès à cette page : elle est hors de votre périmètre ou réservée à un autre rôle. Si vous pensez qu'il s'agit d'une erreur, contactez le service Informatique."])

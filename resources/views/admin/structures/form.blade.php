@@ -58,8 +58,8 @@
             <div x-data="{ couleur: @js(old('couleur', $structure->couleur)), herite: @js(! old('couleur', $structure->couleur)) }">
                 <label class="etiquette" for="couleur-texte">Couleur</label>
                 <div class="mt-1 flex items-center gap-2">
-                    <input type="color" :value="couleur || '#006a45'" @input="couleur = $event.target.value; herite = false" :disabled="herite" class="h-9 w-12 rounded border-slate-300" aria-label="Choisir la couleur">
-                    <input id="couleur-texte" name="couleur" x-model="couleur" :disabled="herite" placeholder="#006a45" maxlength="7" class="w-28 rounded-lg border-slate-300 text-sm">
+                    <input type="color" :value="couleur || '#1c3079'" @input="couleur = $event.target.value; herite = false" :disabled="herite" class="h-9 w-12 rounded border-slate-300" aria-label="Choisir la couleur">
+                    <input id="couleur-texte" name="couleur" x-model="couleur" :disabled="herite" placeholder="#1c3079" maxlength="7" class="w-28 rounded-lg border-slate-300 text-sm">
                     <label class="flex items-center gap-1 text-xs text-slate-600"><input type="checkbox" x-model="herite" @change="if (herite) couleur = ''" class="rounded border-slate-300"> Hériter de la division</label>
                 </div>
                 <x-input-error :messages="$errors->get('couleur')" class="mt-1" />
