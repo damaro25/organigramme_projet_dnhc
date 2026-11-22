@@ -75,7 +75,7 @@ class ProjetController extends Controller
     public function edit(Projet $projet): View
     {
         $this->authorize('view', $projet);
-        $projet->load(['agents', 'piecesJointes', 'validateur']);
+        $projet->load(['agents', 'documents.auteur', 'validateur']);
 
         return view('admin.projets.form', ['projet' => $projet] + $this->listes());
     }
@@ -134,26 +134,45 @@ class ProjetController extends Controller
         return Storage::disk('public')->download($pieceJointe->chemin, $pieceJointe->nom);
     }
 
+    /**
+     * Affiche un PDF ou une photo dans le navigateur (visionneuse), au lieu de le
+     * télécharger. Les autres formats (Word, Excel…) restent en téléchargement.
+     */
+    public function afficherPieceJointe(Projet $projet, PieceJointe $pieceJointe): StreamedResponse
+    {
+        $this->authorize('view', $projet);
+        abort_unless($pieceJointe->projet_id === $projet->id, 404);
+
+        if (! $pieceJointe->est_visualisable) {
+            return $this->telechargerPieceJointe($projet, $pieceJointe);
+        }
+
+        $type = $pieceJointe->extension === 'pdf' ? 'application/pdf' : 'image/'.($pieceJointe->extension === 'jpg' ? 'jpeg' : $pieceJointe->extension);
+
+        return Storage::disk('public')->response($pieceJointe->chemin, $pieceJointe->nom, [
+            'Content-Type' => $type,
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, max-age=3600',
+        ], 'inline');
+    }
+
     public function supprimerPieceJointe(Projet $projet, PieceJointe $pieceJointe): RedirectResponse
     {
         $this->authorize('update', $projet);
-        abort_unless($pieceJointe->projet_id === $projet->id, 404);
+        abort_unless($pieceJointe->projet_id === $projet->id && $pieceJointe->etape_id === null, 404);
         $pieceJointe->delete();
+        PieceJointe::journaliser($projet, 'Document supprimé', [$pieceJointe->nom], auth()->user());
 
         return back()->with('succes', 'La pièce jointe a été supprimée.');
     }
 
     private function enregistrerPiecesJointes(ProjetRequest $request, Projet $projet): void
     {
+        $noms = [];
         foreach ($request->file('pieces_jointes', []) as $fichier) {
-            $projet->piecesJointes()->create([
-                'nom' => $fichier->getClientOriginalName(),
-                'chemin' => $fichier->store("projets/{$projet->id}", 'public'),
-                'taille' => $fichier->getSize(),
-                'mime' => $fichier->getMimeType(),
-                'ajoute_par' => $request->user()->id,
-            ]);
+            $noms[] = PieceJointe::depuisFichier($fichier, $projet, null, $request->user())->nom;
         }
+        PieceJointe::journaliser($projet, 'Documents ajoutés', $noms, $request->user());
     }
 
     private function listes(): array

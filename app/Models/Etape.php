@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -29,6 +30,9 @@ class Etape extends Model
 
     protected static function booted(): void
     {
+        // La base supprime les lignes en cascade, mais pas les fichiers : on les efface d'abord.
+        static::deleting(fn (self $etape) => $etape->piecesJointes()->get()->each->delete());
+
         static::creating(function (self $etape) {
             $etape->ordre ??= (int) static::where('projet_id', $etape->projet_id)->max('ordre') + 1;
         });
@@ -63,6 +67,12 @@ class Etape extends Model
     public function projet(): BelongsTo
     {
         return $this->belongsTo(Projet::class);
+    }
+
+    /** Justificatifs joints lors de la validation de l'étape. */
+    public function piecesJointes(): HasMany
+    {
+        return $this->hasMany(PieceJointe::class)->latest();
     }
 
     public function validateur(): BelongsTo

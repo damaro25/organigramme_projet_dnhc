@@ -44,7 +44,7 @@ class JournalService
         'actif' => 'Actif', 'ordre' => 'Ordre', 'photo' => 'Photo', 'photo_miniature' => 'Miniature',
         'titre' => 'Titre', 'description' => 'Description', 'date_debut' => 'Date de début', 'date_fin_prevue' => 'Date de fin prévue',
         'statut' => 'Statut', 'archive' => 'Archivé', 'valide_par' => 'Validé par', 'valide_le' => 'Validé le',
-        'affectations' => 'Agents affectés',
+        'affectations' => 'Agents affectés', 'pieces_jointes' => 'Fichiers',
         'projet_id' => 'Projet', 'libelle' => 'Libellé', 'poids' => 'Poids', 'est_terminee' => 'Terminée',
         'date_realisation' => 'Date de réalisation', 'commentaire' => 'Commentaire',
         'sigle' => 'Sigle', 'type' => 'Type', 'groupe' => 'Groupe', 'parent_id' => 'Structure parente',

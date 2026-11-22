@@ -77,9 +77,16 @@ class Projet extends Model
         return $this->hasMany(Etape::class)->orderBy('ordre');
     }
 
+    /** Toutes les pièces jointes : documents du projet et justificatifs des étapes. */
     public function piecesJointes(): HasMany
     {
         return $this->hasMany(PieceJointe::class);
+    }
+
+    /** Documents du projet lui-même, hors justificatifs d'étapes. */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(PieceJointe::class)->whereNull('etape_id');
     }
 
     public function validateur(): BelongsTo

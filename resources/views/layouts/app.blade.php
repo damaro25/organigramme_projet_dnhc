@@ -105,5 +105,6 @@
 </div>
 
 @livewireScriptConfig
+    <x-visionneuse />
 </body>
 </html>

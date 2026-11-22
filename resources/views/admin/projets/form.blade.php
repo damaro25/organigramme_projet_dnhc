@@ -95,25 +95,18 @@
                     <x-input-error :messages="$errors->get('affectations')" class="mt-1" />
                 </div>
 
-                {{-- Pièces jointes --}}
+                {{-- Pièces jointes du projet (les justificatifs des étapes sont dans le bloc « Étapes du projet ») --}}
                 <div>
-                    <p class="etiquette">Pièces jointes (PDF, rapports…)</p>
-                    @if (! $creation && $projet->piecesJointes->isNotEmpty())
-                        <ul class="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200">
-                            @foreach ($projet->piecesJointes as $pj)
-                                <li class="flex items-center justify-between gap-2 px-3 py-2 text-sm">
-                                    <a href="{{ route('admin.projets.pieces-jointes.show', [$projet, $pj]) }}" class="truncate text-dnh-700 hover:underline">📎 {{ $pj->nom }}</a>
-                                    <span class="shrink-0 text-xs text-slate-500">{{ $pj->taille_lisible }}</span>
-                                    @if ($peutModifier)
-                                        <button type="submit" form="supprimer-pj-{{ $pj->id }}" class="shrink-0 text-xs text-red-700 hover:underline">Supprimer</button>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
+                    <p class="etiquette">Documents du projet (PDF, rapports, photos…)</p>
+                    @if (! $creation && $projet->documents->isNotEmpty())
+                        <x-liste-fichiers :pieces="$projet->documents" :projet="$projet" :suppression="$peutModifier ? 'formulaire' : null" class="mt-2" />
+                    @elseif (! $peutModifier)
+                        <p class="mt-1 text-sm text-slate-500">Aucun document.</p>
                     @endif
-                    <input type="file" name="pieces_jointes[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods" class="mt-2 block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-dnh-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-dnh-800">
-                    <p class="mt-1 text-xs text-slate-500">10 Mo maximum par fichier.</p>
-                    <x-input-error :messages="$errors->get('pieces_jointes.*')" class="mt-1" />
+                    @if ($peutModifier)
+                        <x-selecteur-fichiers />
+                    @endif
+                    <x-input-error :messages="\Illuminate\Support\Arr::flatten([$errors->get('pieces_jointes'), $errors->get('pieces_jointes.*')])" class="mt-1" />
                 </div>
             </fieldset>
 
@@ -151,7 +144,7 @@
                     @endcan
                 </section>
 
-                @foreach ($projet->piecesJointes as $pj)
+                @foreach ($projet->documents as $pj)
                     <form id="supprimer-pj-{{ $pj->id }}" method="POST" action="{{ route('admin.projets.pieces-jointes.destroy', [$projet, $pj]) }}" onsubmit="return confirm('Supprimer cette pièce jointe ?')" class="hidden">@csrf @method('DELETE')</form>
                 @endforeach
             @endif

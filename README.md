@@ -153,6 +153,23 @@ L'interface applique la [charte graphique du Gouvernement de la République de G
 - **Avatar par défaut** : `public/images/avatar-defaut.svg` (écran) et `avatar-defaut.png` (PDF).
 - **Couleurs des divisions** : menu *Structures* de l'administration. Une base déjà remplie garde ses anciennes couleurs : les modifier dans ce menu, ou relancer `php artisan migrate:fresh --seed` sur une base de démonstration.
 
+## Pièces jointes
+
+- **Documents du projet** : sur la fiche du projet, à la création comme en modification. On peut ajouter des fichiers en plusieurs fois ou les glisser-déposer, et retirer un fichier avant l'enregistrement.
+- **Justificatifs d'une étape** : sous chaque étape cochée, bouton *Joindre des justificatifs* (plusieurs fichiers à la fois). Peuvent joindre : les personnes qui peuvent cocher l'étape. Peuvent supprimer : l'auteur du fichier ou un gestionnaire du projet.
+- **Formats** : PDF, Word, Excel, PowerPoint, OpenDocument et photos (JPG, PNG, WEBP), 10 Mo maximum par fichier, 10 fichiers par envoi.
+- **Visualisation** : le bouton *Voir* ouvre les PDF et les photos dans une visionneuse, sans téléchargement ; les autres formats se téléchargent. Fichiers réservés aux comptes connectés.
+- **Journal** : chaque ajout ou suppression de fichier y est tracé.
+
+**Limites de PHP.** Par défaut, PHP refuse les fichiers de plus de 2 Mo (`upload_max_filesize`) et les envois de plus de 8 Mo au total (`post_max_size`), avant même que l'application ne les voie. L'application affiche la limite réelle sous chaque zone d'envoi. Pour accepter 10 fichiers de 10 Mo, dans le `php.ini` (indiqué par `php --ini`) :
+
+```ini
+upload_max_filesize = 10M
+post_max_size = 110M
+```
+
+Puis relancer `php artisan serve` (ou le serveur web).
+
 ## Mise en production (rappel)
 
 ```bash

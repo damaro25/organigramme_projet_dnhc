@@ -93,6 +93,52 @@ Alpine.data('editeurPhoto', ({ urlEnvoi, urlSuppression, photo, avatarDefaut, aP
 }));
 
 /** Affectation des agents à un projet : sélection multiple avec recherche et choix du rôle. */
+/**
+ * Sélecteur de plusieurs fichiers (formulaire du projet) : chaque choix ou dépôt
+ * s'ajoute à la liste au lieu de la remplacer, chaque fichier peut être retiré,
+ * formats, tailles et nombre sont vérifiés avant l'envoi.
+ */
+Alpine.data('selecteurFichiers', ({ extensions, tailleMax, tailleMaxLisible, nombreMax }) => ({
+    fichiers: [],
+    erreurs: [],
+    survol: false,
+
+    ajouter(liste) {
+        this.erreurs = [];
+        for (const f of Array.from(liste)) {
+            const ext = f.name.split('.').pop().toLowerCase();
+            if (! extensions.includes(ext)) {
+                this.erreurs.push(`« ${f.name} » : format non accepté.`);
+            } else if (f.size > tailleMax) {
+                this.erreurs.push(`« ${f.name} » dépasse ${tailleMaxLisible}.`);
+            } else if (this.fichiers.length >= nombreMax) {
+                this.erreurs.push(`${nombreMax} fichiers maximum : « ${f.name} » n'a pas été ajouté.`);
+            } else if (! this.fichiers.some((g) => g.name === f.name && g.size === f.size)) {
+                this.fichiers.push(f);
+            }
+        }
+        this.synchroniser();
+    },
+
+    retirer(i) {
+        this.fichiers.splice(i, 1);
+        this.synchroniser();
+    },
+
+    // Recopie la liste dans le champ natif : c'est lui qui part avec le formulaire.
+    synchroniser() {
+        const dt = new DataTransfer();
+        this.fichiers.forEach((f) => dt.items.add(f));
+        this.$refs.champ.files = dt.files;
+    },
+
+    taille(octets) {
+        return octets < 1024 * 1024
+            ? Math.max(1, Math.round(octets / 1024)) + ' Ko'
+            : (octets / 1024 / 1024).toFixed(1).replace('.', ',') + ' Mo';
+    },
+}));
+
 Alpine.data('affectation', ({ agents, selection }) => ({
     agents,
     selection,

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\RoleProjet;
 use App\Enums\StatutProjet;
+use App\Models\PieceJointe;
 use App\Models\Projet;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -34,8 +35,8 @@ class ProjetRequest extends FormRequest
             'affectations' => ['array'],
             'affectations.*.agent_id' => ['required', 'integer', 'distinct', Rule::exists('agents', 'id')],
             'affectations.*.role' => ['required', Rule::enum(RoleProjet::class)],
-            'pieces_jointes' => ['array', 'max:10'],
-            'pieces_jointes.*' => ['file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,odt,ods', 'max:10240'],
+            'pieces_jointes' => ['array', 'max:'.PieceJointe::NOMBRE_MAX],
+            'pieces_jointes.*' => PieceJointe::reglesFichier(),
         ];
     }
 
@@ -44,8 +45,10 @@ class ProjetRequest extends FormRequest
         return [
             'structure_id.in' => 'Vous ne pouvez créer un projet que dans votre structure ou l\'une de ses sous-structures.',
             'date_fin_prevue.after_or_equal' => 'L\'échéance doit être postérieure ou égale à la date de début.',
-            'pieces_jointes.*.mimes' => 'Les pièces jointes doivent être des documents PDF, Word, Excel ou PowerPoint.',
+            'pieces_jointes.max' => 'Vous pouvez joindre au maximum '.PieceJointe::NOMBRE_MAX.' fichiers à la fois.',
+            'pieces_jointes.*.mimes' => 'Les pièces jointes doivent être des documents PDF, Word, Excel, PowerPoint ou des photos (JPG, PNG, WEBP).',
             'pieces_jointes.*.max' => 'Chaque pièce jointe ne doit pas dépasser 10 Mo.',
+            'pieces_jointes.*.uploaded' => 'Un fichier n\'a pas pu être envoyé : il dépasse probablement la taille autorisée par le serveur ('.PieceJointe::tailleMaxLisible().').',
         ];
     }
 

@@ -80,6 +80,47 @@
                         </div>
                         @error("cochage.{$etape->id}.date_realisation") <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     @endif
+
+                    {{-- Justificatifs de l'étape --}}
+                    @if ($etape->piecesJointes->isNotEmpty())
+                        <x-liste-fichiers :pieces="$etape->piecesJointes" :projet="$projet" compact class="mt-2"
+                                          suppression="livewire" :peut-supprimer="fn ($pj) => $this->peutRetirer($pj)" />
+                    @endif
+
+                    @if ($etape->est_terminee && $this->peutCocher)
+                        <div class="mt-2" x-data="{ envoi: false, progression: 0 }"
+                             x-on:livewire-upload-start="envoi = true" x-on:livewire-upload-finish="envoi = false"
+                             x-on:livewire-upload-error="envoi = false" x-on:livewire-upload-progress="progression = $event.detail.progress">
+                            @if (empty($fichiers[$etape->id]))
+                                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-dashed border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-dnh-700 hover:border-dnh-500 hover:bg-dnh-50">
+                                    <span aria-hidden="true">📎</span> Joindre des justificatifs
+                                    <input type="file" multiple wire:model="fichiers.{{ $etape->id }}" accept="{{ \App\Models\PieceJointe::accept() }}" class="sr-only">
+                                </label>
+                                <span x-show="envoi" x-cloak class="ml-2 text-xs text-slate-500">Envoi… <span x-text="progression"></span> %</span>
+                            @else
+                                <div class="rounded-md border border-dnh-200 bg-dnh-50 px-3 py-2 text-xs">
+                                    <p class="font-medium text-slate-700">{{ count($fichiers[$etape->id]) }} fichier(s) à joindre :</p>
+                                    <ul class="mt-1 list-inside list-disc text-slate-600">
+                                        @foreach ($fichiers[$etape->id] as $f)
+                                            <li class="truncate">{{ $f->getClientOriginalName() }} <span class="text-slate-400">({{ \App\Models\PieceJointe::octetsLisibles($f->getSize()) }})</span></li>
+                                        @endforeach
+                                    </ul>
+                                    <div class="mt-2 flex gap-2">
+                                        <button type="button" wire:click="joindre({{ $etape->id }})" wire:loading.attr="disabled" wire:target="joindre({{ $etape->id }})" class="btn-primaire py-1 text-xs">
+                                            <span wire:loading.remove wire:target="joindre({{ $etape->id }})">Joindre</span>
+                                            <span wire:loading wire:target="joindre({{ $etape->id }})">Enregistrement…</span>
+                                        </button>
+                                        <button type="button" wire:click="viderSelection({{ $etape->id }})" class="btn-secondaire py-1 text-xs">Annuler</button>
+                                    </div>
+                                </div>
+                            @endif
+                            @error("fichiers.{$etape->id}") <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            @foreach ($errors->get("fichiers.{$etape->id}.*") as $messages)
+                                @foreach ($messages as $message) <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @endforeach
+                            @endforeach
+                            <p class="mt-1 text-[11px] text-slate-400">PDF, Word, Excel, PowerPoint ou photos · {{ \App\Models\PieceJointe::tailleMaxLisible() }} maximum par fichier</p>
+                        </div>
+                    @endif
                 </div>
 
                 @if ($this->peutGerer && $enEdition !== $etape->id)
