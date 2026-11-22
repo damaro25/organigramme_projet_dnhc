@@ -104,8 +104,10 @@
                         <ul class="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200">
                             @foreach ($piecesProjet as $pj)
                                 <li class="flex items-center justify-between gap-2 px-3 py-2 text-sm">
-                                    <a href="{{ route('admin.projets.pieces-jointes.show', [$projet, $pj]) }}" class="truncate text-dnh-700 hover:underline">📎 {{ $pj->nom }}</a>
+                                    <a href="{{ route('admin.projets.pieces-jointes.apercu', [$projet, $pj]) }}" @click.prevent="$dispatch('voir-fichier', @js($pj->pourVisionneuse()))"
+                                       class="min-w-0 flex-1 truncate text-dnh-700 hover:underline" title="Voir {{ $pj->nom }}">📎 {{ $pj->nom }}</a>
                                     <span class="shrink-0 text-xs text-slate-500">{{ $pj->taille_lisible }}</span>
+                                    <a href="{{ route('admin.projets.pieces-jointes.show', [$projet, $pj]) }}" class="shrink-0 text-xs text-slate-600 hover:underline">Télécharger</a>
                                     @if ($peutModifier)
                                         <button type="submit" form="supprimer-pj-{{ $pj->id }}" class="shrink-0 text-xs text-red-700 hover:underline">Supprimer</button>
                                     @endif
@@ -113,7 +115,7 @@
                             @endforeach
                         </ul>
                     @endif
-                    <input type="file" name="pieces_jointes[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods" class="mt-2 block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-dnh-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-dnh-800">
+                    <input type="file" name="pieces_jointes[]" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods" class="mt-2 block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-dnh-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-dnh-800">
                     <p class="mt-1 text-xs text-slate-500">10 Mo maximum par fichier.</p>
                     <x-input-error :messages="$errors->get('pieces_jointes.*')" class="mt-1" />
                 </div>

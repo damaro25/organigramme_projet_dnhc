@@ -171,7 +171,24 @@ class PiecesJointesEtapeTest extends TestCase
 
         $piece = collect($etapes)->pluck('pieces')->flatten(1)->firstWhere('nom', 'pv.pdf');
         $this->assertNotNull($piece);
-        $this->assertStringContainsString('/apercu', $piece['url']);
+        $this->assertStringContainsString('/apercu', $piece['apercu']);
+        $this->assertSame('pdf', $piece['type']);
+        $this->assertSame('13 o', $piece['taille']);
+    }
+
+    public function test_la_fiche_agent_liste_les_pieces_jointes_du_projet(): void
+    {
+        $this->projet->piecesJointes()->create([
+            'nom' => 'note.docx', 'chemin' => 'projets/note.docx', 'taille' => 1536,
+            'mime' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'ajoute_par' => $this->chef->id,
+        ]);
+
+        $piece = collect(collect($this->actingAs($this->chef)->getJson(route('agents.fiche', $this->chef->agent))->assertOk()->json('structure.projets'))
+            ->firstWhere('id', $this->projet->id)['pieces'])->firstWhere('nom', 'note.docx');
+
+        $this->assertSame('autre', $piece['type']);
+        $this->assertSame('1,5 Ko', $piece['taille']);
+        $this->assertStringContainsString('/pieces-jointes/', $piece['telechargement']);
     }
 
     public function test_un_charge_d_etudes_ne_joint_rien(): void

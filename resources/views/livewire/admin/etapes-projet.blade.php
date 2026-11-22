@@ -91,8 +91,8 @@
                         <ul class="mt-2 flex flex-wrap gap-2" aria-label="Pièces jointes de l'étape">
                             @foreach ($etape->piecesJointes as $pj)
                                 <li wire:key="pj-{{ $pj->id }}" class="group flex max-w-xs items-center gap-2 rounded-md border border-fond-bord bg-white py-1 pl-1 pr-2 text-xs shadow-sm">
-                                    <a href="{{ route('admin.projets.pieces-jointes.apercu', [$projet, $pj]) }}" target="_blank" rel="noopener"
-                                       class="flex min-w-0 items-center gap-2 rounded hover:text-dnh-700" title="{{ $pj->est_visualisable ? 'Ouvrir' : 'Télécharger' }} {{ $pj->nom }}">
+                                    <a href="{{ route('admin.projets.pieces-jointes.apercu', [$projet, $pj]) }}" @click.prevent="$dispatch('voir-fichier', @js($pj->pourVisionneuse()))"
+                                       class="flex min-w-0 items-center gap-2 rounded hover:text-dnh-700" title="Voir {{ $pj->nom }}">
                                         @if ($pj->est_image)
                                             <img src="{{ route('admin.projets.pieces-jointes.apercu', [$projet, $pj]) }}" alt="" loading="lazy" class="h-8 w-8 shrink-0 rounded object-cover ring-1 ring-fond-bord">
                                         @else
@@ -100,7 +100,7 @@
                                         @endif
                                         <span class="min-w-0">
                                             <span class="block truncate font-medium text-slate-800">{{ $pj->nom }}</span>
-                                            <span class="block text-[11px] text-slate-500">{{ $pj->taille_lisible }} · {{ $pj->est_visualisable ? 'Ouvrir' : 'Télécharger' }}</span>
+                                            <span class="block text-[11px] text-slate-500">{{ $pj->taille_lisible }} · Voir</span>
                                         </span>
                                     </a>
                                     <a href="{{ route('admin.projets.pieces-jointes.show', [$projet, $pj]) }}" class="shrink-0 rounded p-1 text-slate-400 hover:bg-dnh-50 hover:text-dnh-700" title="Télécharger" aria-label="Télécharger {{ $pj->nom }}">
@@ -189,7 +189,7 @@
                                     <ul class="mt-1 space-y-1 text-xs">
                                         @foreach ($fichiers as $i => $fichier)
                                             <li wire:key="fichier-{{ $i }}-{{ $fichier->getFilename() }}" class="flex items-center justify-between gap-2 rounded bg-white px-2 py-1 ring-1 ring-fond-bord">
-                                                <span class="truncate">📎 {{ $fichier->getClientOriginalName() }} <span class="text-slate-500">· {{ \Illuminate\Support\Number::fileSize($fichier->getSize(), precision: 1) }}</span></span>
+                                                <span class="truncate">📎 {{ $fichier->getClientOriginalName() }} <span class="text-slate-500">· {{ \App\Models\PieceJointe::octetsLisibles($fichier->getSize()) }}</span></span>
                                                 <button type="button" wire:click="retirerFichier({{ $i }})" class="shrink-0 text-slate-400 hover:text-red-600" aria-label="Retirer {{ $fichier->getClientOriginalName() }}">✕</button>
                                             </li>
                                         @endforeach

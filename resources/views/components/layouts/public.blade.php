@@ -52,6 +52,7 @@
 
         <x-pied-officiel />
     </div>
+<x-visionneuse />
 @include('partials.couches-menu')
 </body>
 </html>

@@ -82,6 +82,16 @@
                                         <span class="w-10 text-right text-sm font-bold" :class="couleurTexte(projet.couleur)" x-text="projet.taux + '%'"></span>
                                     </div>
 
+                                    {{-- Pièces jointes du projet --}}
+                                    <div x-show="projet.pieces?.length" class="mt-3 flex flex-wrap gap-1.5" aria-label="Pièces jointes du projet">
+                                        <template x-for="piece in projet.pieces ?? []">
+                                            <a :href="piece.apercu" @click.prevent="$dispatch('voir-fichier', piece)" :title="'Voir ' + piece.nom + ' (' + piece.taille + ')'"
+                                               class="inline-flex max-w-[16rem] items-center gap-1 rounded border border-fond-bord bg-dnh-50 px-1.5 py-0.5 text-[11px] font-medium text-dnh-800 hover:border-dnh-300 hover:text-dnh-950">
+                                                <span aria-hidden="true">📎</span><span class="truncate" x-text="piece.nom"></span>
+                                            </a>
+                                        </template>
+                                    </div>
+
                                     {{-- Étapes --}}
                                     <ol class="mt-3 space-y-1.5">
                                         <template x-for="etape in projet.etapes">
@@ -96,7 +106,7 @@
                                                     <span x-show="etape.commentaire" class="block text-xs italic text-slate-500" x-text="etape.commentaire"></span>
                                                     <span x-show="etape.pieces?.length" class="mt-1 flex flex-wrap gap-1.5">
                                                         <template x-for="piece in etape.pieces ?? []">
-                                                            <a :href="piece.url" target="_blank" rel="noopener" :title="piece.nom + ' (' + piece.taille + ')'"
+                                                            <a :href="piece.apercu" @click.prevent="$dispatch('voir-fichier', piece)" :title="'Voir ' + piece.nom + ' (' + piece.taille + ')'"
                                                                class="inline-flex max-w-[14rem] items-center gap-1 rounded border border-fond-bord bg-white px-1.5 py-0.5 text-[11px] font-medium text-dnh-700 hover:border-dnh-300 hover:text-dnh-950">
                                                                 <span aria-hidden="true">📎</span><span class="truncate" x-text="piece.nom"></span>
                                                             </a>

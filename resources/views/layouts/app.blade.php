@@ -113,6 +113,7 @@
 </div>
 
 @livewireScriptConfig
+<x-visionneuse />
 @include('partials.couches-menu')
 </body>
 </html>
