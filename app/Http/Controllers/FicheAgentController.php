@@ -11,8 +11,8 @@ use Illuminate\Http\JsonResponse;
  * Données du panneau latéral ouvert au clic sur une photo.
  *
  * Fichiers joints : détaillés (nom, aperçu, téléchargement) seulement pour les
- * projets que le compte connecté peut consulter (son périmètre, voir
- * User::voitToutLaDnh) ; sinon, et pour les visiteurs, seulement leur nombre.
+ * projets que le compte connecté peut ouvrir (ProjetPolicy::view : ceux qu'il
+ * peut modifier, valider ou cocher) ; sinon, et pour les visiteurs, seulement leur nombre.
  */
 class FicheAgentController extends Controller
 {

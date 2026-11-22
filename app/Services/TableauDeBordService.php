@@ -43,7 +43,7 @@ class TableauDeBordService
             'tauxGlobal' => Projet::moyenneTaux($projets),
             // Hors périmètre complet, on ne compare que les divisions où l'utilisateur a des projets.
             'divisions' => $divisions->map(fn (Structure $d) => $this->indicateurs($d, $projets))
-                ->when($user && ! $user->voitToutLaDnh(), fn ($c) => $c->filter(fn ($l) => $l['nombre'] > 0))
+                ->when($user && ! $user->voitTousLesProjets(), fn ($c) => $c->filter(fn ($l) => $l['nombre'] > 0))
                 ->values(),
             'sections' => $sections
                 ->map(fn (Structure $s) => $this->indicateurs($s, $projets) + ['division' => $divisions->firstWhere('id', $s->parent_id)])

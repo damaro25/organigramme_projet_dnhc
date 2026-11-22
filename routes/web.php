@@ -17,7 +17,9 @@ Route::get('/organigramme.pdf', [ExportPdfController::class, 'organigramme'])->n
 Route::get('/agents/{agent}/fiche.pdf', [ExportPdfController::class, 'ficheAgent'])->name('agents.fiche.pdf');
 
 // Après connexion, Breeze redirige vers « dashboard » : c'est le tableau de bord de l'administration.
-Route::redirect('/dashboard', '/admin')->name('dashboard');
+// Après connexion : l'administration, ou l'organigramme pour un compte qui n'y a pas accès (Consultation).
+Route::get('/dashboard', fn () => redirect(auth()->user()?->can('acceder_admin') ? '/admin' : '/'))
+    ->middleware('auth')->name('dashboard');
 
 // Espace d'administration.
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:acceder_admin'])->group(function () {

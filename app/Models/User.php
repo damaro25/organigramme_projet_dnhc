@@ -71,19 +71,37 @@ class User extends Authenticatable
     }
 
     /**
-     * Périmètre de consultation : l'Administrateur, la Direction (DNH, DNAH) et le
-     * compte Consultation voient toute la DNH ; un chef voit sa branche (sa structure
-     * et celles en dessous) ; un chargé d'études voit ses propres projets.
+     * Règle d'accès : un compte ne voit que ce qu'il peut modifier.
+     *
+     * - Projets : l'Administrateur et la Direction (qui valide les projets) les voient
+     *   tous ; un chef, ceux de sa branche et ceux où il est affecté (il peut y cocher
+     *   des étapes) ; un chargé d'études, ceux où il est affecté.
+     * - Agents : l'Administrateur les voit tous ; un chef, ceux de sa branche ; un
+     *   chargé d'études, sa propre fiche (pour sa photo).
+     * - Le compte Consultation ne modifie rien : il n'a pas accès à l'administration.
      */
-    public function voitToutLaDnh(): bool
+    public function voitTousLesProjets(): bool
     {
-        return $this->hasAnyRole([self::ROLE_ADMIN, self::ROLE_DIRECTION, self::ROLE_CONSULTATION]);
+        return $this->hasAnyRole([self::ROLE_ADMIN, self::ROLE_DIRECTION]);
     }
 
-    /** Structures visibles dans les listes et les filtres ; null = toutes. */
+    public function voitTousLesAgents(): bool
+    {
+        return $this->hasRole(self::ROLE_ADMIN);
+    }
+
+    /** Vrai si le compte peut modifier au moins un agent (fiche, poste ou photo). */
+    public function peutModifierDesAgents(): bool
+    {
+        return $this->voitTousLesAgents()
+            || ($this->can('gerer_agents') && $this->structuresGerees() !== [])
+            || ($this->can('modifier_photos') && $this->agent_id !== null);
+    }
+
+    /** Structures proposées dans les filtres ; null = toutes. */
     public function structuresVisibles(): ?array
     {
-        return $this->voitToutLaDnh() ? null : $this->structuresGerees();
+        return $this->voitTousLesProjets() ? null : $this->structuresGerees();
     }
 
     /** Vrai si l'utilisateur est affecté au projet via sa fiche agent. */

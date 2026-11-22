@@ -27,7 +27,7 @@ class TableauDeBordController extends Controller
 
         return view('admin.tableau-de-bord', $service->calculer($filtres, $user) + [
             'filtres' => $filtres,
-            'perimetre' => $user->voitToutLaDnh() ? null : ($user->structuresGerees() !== [] ? $user->agent->structure->nom : 'vos projets'),
+            'perimetre' => $user->voitTousLesProjets() ? null : ($user->structuresGerees() !== [] ? $user->agent->structure->nom : 'vos projets'),
             'listeDivisions' => Structure::deType(TypeStructure::Division)->visiblesPar($user)->ordonne()->get(),
             'listeSections' => Structure::deType(TypeStructure::Section)->visiblesPar($user)->ordonne()->get(),
             'listeAgents' => Agent::actifs()->visiblesPar($user)->orderBy('nom')->get(),

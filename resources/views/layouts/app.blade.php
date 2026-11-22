@@ -14,10 +14,10 @@
 @php
     $u = auth()->user();
     $menu = [
-        ['Tableau de bord', 'admin.tableau-de-bord', 'admin.tableau-de-bord', true, 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'],
-        ['Organigramme', 'admin.organigramme', 'admin.organigramme*', true, 'M10 3h4v4h-1v3h6v4h1v4h-4v-4h1v-2h-4v2h1v4h-4v-4h1v-2H7v2h1v4H4v-4h1v-4h6V7h-1z'],
+        ['Tableau de bord', 'admin.tableau-de-bord', 'admin.tableau-de-bord', $u->can('acceder_admin'), 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'],
+        ['Organigramme', 'admin.organigramme', 'admin.organigramme*', $u->can('acceder_admin') && $u->peutModifierDesAgents(), 'M10 3h4v4h-1v3h6v4h1v4h-4v-4h1v-2h-4v2h1v4h-4v-4h1v-2H7v2h1v4H4v-4h1v-4h6V7h-1z'],
         ['Agents', 'admin.agents.index', 'admin.agents.*', $u->can('viewAny', \App\Models\Agent::class), 'M12 12a4 4 0 100-8 4 4 0 000 8zm-7 9a7 7 0 0114 0z'],
-        ['Projets', 'admin.projets.index', 'admin.projets.*', $u->can('viewAny', \App\Models\Projet::class), 'M4 4h16v4H4zm0 6h16v10H4zm3 3v4h2v-4zm4-1v5h2v-5zm4 2v3h2v-3z'],
+        ['Projets', 'admin.projets.index', 'admin.projets.*', $u->can('acceder_admin') && $u->can('viewAny', \App\Models\Projet::class), 'M4 4h16v4H4zm0 6h16v10H4zm3 3v4h2v-4zm4-1v5h2v-5zm4 2v3h2v-3z'],
         ['Structures', 'admin.structures.index', 'admin.structures.*', $u->can('viewAny', \App\Models\Structure::class), 'M4 21V7l8-4 8 4v14h-6v-6h-4v6z'],
         ['Utilisateurs', 'admin.utilisateurs.index', 'admin.utilisateurs.*', $u->can('viewAny', \App\Models\User::class), 'M16 11a3 3 0 100-6 3 3 0 000 6zM8 11a3 3 0 100-6 3 3 0 000 6zm0 2c-2.7 0-8 1.3-8 4v3h16v-3c0-2.7-5.3-4-8-4zm8 0c-.3 0-.7 0-1.1.1 1.2.9 2.1 2.1 2.1 3.9v3h7v-3c0-2.7-5.3-4-8-4z'],
         ['Journal des modifications', 'admin.journal', 'admin.journal*', $u->can('voir_journal') && Route::has('admin.journal'), 'M6 2h9l5 5v15H6zm8 1v5h5M9 12h8M9 16h8'],
@@ -72,7 +72,9 @@
                     </button>
                 </x-slot>
                 <x-slot name="content">
-                    <x-dropdown-link :href="route('admin.notifications')">Notifications @if ($nonLues) ({{ $nonLues }}) @endif</x-dropdown-link>
+                    @can('acceder_admin')
+                        <x-dropdown-link :href="route('admin.notifications')">Notifications @if ($nonLues) ({{ $nonLues }}) @endif</x-dropdown-link>
+                    @endcan
                     <x-dropdown-link :href="route('profile.edit')">Mon profil</x-dropdown-link>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf

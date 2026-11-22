@@ -12,7 +12,9 @@ class RolesEtPermissionsSeeder extends Seeder
 {
     /** Permission => rôles qui la reçoivent. Le périmètre (sa structure, ses projets) est vérifié par les Policies. */
     public const MATRICE = [
-        'acceder_admin' => ['administrateur', 'direction', 'chef_structure', 'charge_etudes', 'consultation'],
+        // Le compte Consultation ne modifie rien : il n'a pas accès à l'administration
+        // (règle « on ne voit que ce qu'on peut modifier »).
+        'acceder_admin' => ['administrateur', 'direction', 'chef_structure', 'charge_etudes'],
         'gerer_agents' => ['administrateur', 'chef_structure'],
         'modifier_photos' => ['administrateur', 'chef_structure', 'charge_etudes'],
         'gerer_projets' => ['administrateur', 'chef_structure'],

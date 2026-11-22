@@ -93,27 +93,28 @@ Mot de passe commun : **`Dnh@2026`**
 | E-mail | Rôle | Agent rattaché | Ce qu'il peut faire |
 | --- | --- | --- | --- |
 | `admin@dnh.local` | Administrateur | Chef du service Informatique | Tout : agents, projets, structures, comptes, journal |
-| `dnh@dnh.local` | Direction | Directeur National (DNH) | Tout consulter, valider les projets, journal |
+| `dnh@dnh.local` | Direction | Directeur National (DNH) | Consulter et valider tous les projets, journal |
 | `dnah@dnh.local` | Direction | Directrice Nationale Adjointe (DNAH) | Idem |
 | `chef1.division@dnh.local` | Chef de structure | Chef de la Division Planification / Économie | Gérer agents, photos et projets de sa division et de ses sections |
 | `chef2.division@dnh.local` | Chef de structure | Cheffe de la Division Aval Pétrolier | Gérer agents, photos et projets de sa division et de ses sections |
 | `chef3.division@dnh.local` | Chef de structure | Chef de la Division Amont Pétrolier | Gérer agents, photos et projets de sa division et de ses sections |
 | `chef.section@dnh.local` | Chef de structure | Cheffe de la section SSTD | Gérer agents, photos et projets de sa section |
 | `charge.etudes@dnh.local` | Chargé d'études | Premier chargé d'études de la SSTD | Cocher les étapes de ses projets, modifier sa propre photo |
-| `consultation@dnh.local` | Consultation | Chef du SAF | Lecture seule |
+| `consultation@dnh.local` | Consultation | Chef du SAF | Aucun accès à l'administration (organigramme public seulement) |
 
 L'organigramme public, les fiches des agents et les exports PDF sont accessibles sans connexion.
 
-**Périmètre de consultation.** Dans l'administration, chaque compte ne voit que sa branche de l'organigramme :
+**Règle d'accès : un compte ne voit que ce qu'il peut modifier.**
 
-| Compte | Projets, agents, tableau de bord et fichiers visibles |
-| --- | --- |
-| Administrateur, Direction (DNH, DNAH), Consultation | Toute la DNH |
-| Chef de division | Sa division et ses sections, plus les projets où il est affecté ailleurs |
-| Chef de section | Sa section, plus les projets où il est affecté ailleurs |
-| Chargé d'études | Ses propres projets et sa propre fiche |
+| Compte | Projets | Agents et organigramme d'administration |
+| --- | --- | --- |
+| Administrateur | Tous | Tous (arbre complet) |
+| Direction (DNH, DNAH) | Tous, pour les valider | Aucun (menus masqués) |
+| Chef de division ou de section | Sa branche, plus ceux où il est affecté ailleurs (il peut y cocher des étapes) | Sa branche (arbre limité à sa branche) |
+| Chargé d'études | Ceux où il est affecté | Sa propre fiche, pour sa photo |
+| Consultation | Aucun : pas d'accès à l'administration (redirigé vers l'organigramme public) | Aucun |
 
-L'arbre de l'organigramme reste complet pour tous. Dans la fiche d'un agent, les fichiers des projets hors périmètre sont seulement comptés (« 🔒 hors de votre périmètre »). La règle est centralisée dans `User::voitToutLaDnh()` et les portées `visiblesPar()` des modèles `Projet`, `Agent` et `Structure` ; testée dans `tests/Feature/Admin/PerimetreTest.php`.
+Le tableau de bord et les fichiers suivent la même règle. L'organigramme public reste complet ; dans la fiche d'un agent, les fichiers d'un projet hors périmètre sont seulement comptés. Règle centralisée dans `User` (`voitTousLesProjets()`, `voitTousLesAgents()`, `peutModifierDesAgents()`) et dans les portées `visiblesPar()` de `Projet`, `Agent` et `Structure` ; testée dans `tests/Feature/Admin/PerimetreTest.php`. Sur une base déjà installée, `php artisan migrate` retire l'accès à l'administration au rôle Consultation.
 
 > ⚠️ Les noms, e-mails et téléphones des données de démonstration sont fictifs. Avant la mise en production, remplacer les données et **changer ou supprimer ces comptes** (menu *Utilisateurs*).
 

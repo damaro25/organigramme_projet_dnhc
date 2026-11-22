@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
- * Périmètre de consultation : chaque compte ne voit que sa branche de l'organigramme
- * (Administrateur, Direction et Consultation voient toute la DNH ; un chargé
- * d'études voit ses propres projets).
+ * Règle d'accès : un compte ne voit que ce qu'il peut modifier.
+ * Administrateur : tout ; Direction : tous les projets (elle les valide), pas les
+ * agents ; chef : sa branche ; chargé d'études : ses projets et sa fiche ;
+ * Consultation : rien dans l'administration.
  */
 class PerimetreTest extends TestCase
 {
@@ -111,17 +112,66 @@ class PerimetreTest extends TestCase
             ->assertViewHas('agents', fn ($p) => $p->total() === 1 && $p->first()->id === $charge->agent_id);
     }
 
-    public function test_la_direction_et_la_consultation_voient_toute_la_dnh(): void
+    public function test_l_administrateur_voit_tout_et_la_direction_tous_les_projets(): void
     {
         $tous = Projet::count();
         $projet = Projet::latest('id')->firstOrFail();
 
-        foreach (['admin', 'dnh', 'dnah', 'consultation'] as $c) {
+        foreach (['admin', 'dnh', 'dnah'] as $c) {
             $user = $this->compte("{$c}@dnh.local");
             $this->assertSame($tous, Projet::visiblesPar($user)->count(), $c);
-            $this->assertSame(Agent::count(), Agent::visiblesPar($user)->count(), $c);
             $this->actingAs($user)->get(route('admin.projets.edit', $projet))->assertOk();
         }
+
+        $this->assertSame(Agent::count(), Agent::visiblesPar($this->compte('admin@dnh.local'))->count());
+        // La Direction ne modifie aucun agent : ni liste des agents, ni organigramme d'administration.
+        $dnh = $this->compte('dnh@dnh.local');
+        $this->assertSame(0, Agent::visiblesPar($dnh)->count());
+        $this->actingAs($dnh)->get(route('admin.agents.index'))->assertForbidden();
+        $this->actingAs($dnh)->get(route('admin.organigramme'))->assertForbidden();
+    }
+
+    public function test_la_consultation_ne_voit_rien(): void
+    {
+        $c = $this->compte('consultation@dnh.local');
+
+        $this->assertSame(0, Projet::visiblesPar($c)->count());
+        $this->assertSame(0, Agent::visiblesPar($c)->count());
+        foreach (['/admin', '/admin/projets', '/admin/agents', '/admin/organigramme'] as $url) {
+            $this->actingAs($c)->get($url)->assertForbidden();
+        }
+    }
+
+    public function test_l_arbre_d_administration_ne_montre_que_la_branche_modifiable(): void
+    {
+        $noeuds = fn (User $u) => collect($this->actingAs($u)->getJson(route('admin.organigramme.donnees'))->assertOk()->json('noeuds'));
+
+        // Chef de section : lui-même en racine, et les agents de sa section, tous modifiables.
+        $chef = $this->compte('chef.section@dnh.local');
+        $arbre = $noeuds($chef);
+        $racines = $arbre->whereNull('parentId');
+        $this->assertCount(1, $racines);
+        $this->assertSame('a'.$chef->agent_id, $racines->first()['id']);
+        $this->assertSame(
+            Agent::actifs()->whereIn('structure_id', $this->branche('SSTD'))->pluck('id')->sort()->values()->all(),
+            $arbre->pluck('agentId')->sort()->values()->all()
+        );
+        $this->assertTrue($arbre->every(fn ($n) => $n['admin'] === true));
+        $this->assertTrue($arbre->every(fn ($n) => $n['parentId'] === null || $arbre->contains('id', $n['parentId'])));
+
+        // Chef de division : toute sa division, une seule racine.
+        $division = $noeuds($this->compte('chef2.division@dnh.local'));
+        $this->assertCount(1, $division->whereNull('parentId'));
+        $this->assertCount(Agent::actifs()->whereIn('structure_id', $this->branche('DAVP'))->count(), $division);
+
+        // Chargé d'études : sa seule fiche.
+        $charge = $this->compte('charge.etudes@dnh.local');
+        $this->assertSame([$charge->agent_id], $noeuds($charge)->pluck('agentId')->all());
+
+        // Administrateur : l'arbre complet, avec les services rattachés sur le côté.
+        $complet = $noeuds($this->compte('admin@dnh.local'));
+        $this->assertNotNull($complet->firstWhere('estRacine', true)['cotes'] ?? null);
+        $this->assertGreaterThan($division->count(), $complet->count());
     }
 
     public function test_la_liste_des_agents_d_un_chef_se_limite_a_sa_branche(): void
@@ -168,6 +218,6 @@ class PerimetreTest extends TestCase
         $this->assertSame([], $horsPerimetre['documents']);
         $this->assertSame(1, $horsPerimetre['nbFichiers']);
 
-        $this->assertTrue($pour($this->compte('consultation@dnh.local'))['voitFichiers']);
+        $this->assertTrue($pour($this->compte('dnh@dnh.local'))['voitFichiers']);
     }
 }

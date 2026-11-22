@@ -29,20 +29,24 @@ class MatriceRolesTest extends TestCase
         'notifications' => '/admin/notifications',
     ];
 
-    /** Pages autorisées pour chaque compte ; toutes les autres doivent répondre 403. */
+    /**
+     * Pages autorisées pour chaque compte ; toutes les autres doivent répondre 403.
+     * Règle : un compte ne voit que ce qu'il peut modifier (la Direction voit les
+     * projets qu'elle valide, mais pas les agents ; la Consultation ne voit rien).
+     */
     public static function comptes(): array
     {
-        $lecture = ['tableau de bord', 'organigramme', 'liste des agents', 'liste des projets', 'notifications'];
-        $gestion = [...$lecture, 'nouvel agent', 'nouveau projet'];
+        $chargé = ['tableau de bord', 'organigramme', 'liste des agents', 'liste des projets', 'notifications'];
+        $gestion = [...$chargé, 'nouvel agent', 'nouveau projet'];
 
         return [
             'administrateur' => ['admin', array_keys(self::PAGES)],
-            'direction (DNH)' => ['dnh', [...$lecture, 'journal']],
-            'direction (DNAH)' => ['dnah', [...$lecture, 'journal']],
+            'direction (DNH)' => ['dnh', ['tableau de bord', 'liste des projets', 'notifications', 'journal']],
+            'direction (DNAH)' => ['dnah', ['tableau de bord', 'liste des projets', 'notifications', 'journal']],
             'chef de division' => ['chef2.division', $gestion],
             'chef de section' => ['chef.section', $gestion],
-            'chargé d\'études' => ['charge.etudes', $lecture],
-            'consultation' => ['consultation', $lecture],
+            'chargé d\'études' => ['charge.etudes', $chargé],
+            'consultation' => ['consultation', []],
         ];
     }
 

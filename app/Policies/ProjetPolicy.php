@@ -12,7 +12,7 @@ class ProjetPolicy
         return $user->can('acceder_admin');
     }
 
-    /** Consulter un projet, ses étapes et ses fichiers : dans son périmètre seulement. */
+    /** Ouvrir un projet, ses étapes et ses fichiers : seulement s'il peut le modifier, le valider ou en cocher les étapes. */
     public function view(User $user, Projet $projet): bool
     {
         return $user->can('acceder_admin') && $projet->estVisiblePar($user);

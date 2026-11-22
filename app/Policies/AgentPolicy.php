@@ -8,9 +8,10 @@ use App\Models\User;
 /** L'administrateur est autorisé partout (Gate::before dans AppServiceProvider). */
 class AgentPolicy
 {
+    /** Liste des agents : seulement pour qui peut en modifier au moins un. */
     public function viewAny(User $user): bool
     {
-        return $user->can('acceder_admin');
+        return $user->can('acceder_admin') && $user->peutModifierDesAgents();
     }
 
     public function create(User $user): bool

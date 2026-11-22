@@ -49,9 +49,11 @@ class AutorisationsTest extends TestCase
 
     public function test_chaque_role_accede_au_tableau_de_bord(): void
     {
-        foreach (['admin', 'dnh', 'chef.section', 'charge.etudes', 'consultation'] as $c) {
+        foreach (['admin', 'dnh', 'chef.section', 'charge.etudes'] as $c) {
             $this->actingAs($this->compte("{$c}@dnh.local"))->get('/admin')->assertOk();
         }
+        // La Consultation ne modifie rien, donc ne voit rien de l'administration.
+        $this->actingAs($this->compte('consultation@dnh.local'))->get('/admin')->assertForbidden();
     }
 
     public function test_seul_l_administrateur_gere_structures_et_utilisateurs(): void
@@ -107,15 +109,20 @@ class AutorisationsTest extends TestCase
         $this->assertNotNull($projet->fresh()->valide_le);
     }
 
-    public function test_la_consultation_est_en_lecture_seule(): void
+    public function test_la_consultation_n_accede_pas_a_l_administration(): void
     {
         $c = $this->compte('consultation@dnh.local');
         $projet = Projet::first();
 
-        $this->actingAs($c)->get(route('admin.projets.index'))->assertOk();
-        $this->actingAs($c)->get(route('admin.projets.create'))->assertForbidden();
+        $this->actingAs($c)->get(route('admin.projets.index'))->assertForbidden();
+        $this->actingAs($c)->get(route('admin.projets.edit', $projet))->assertForbidden();
         $this->assertFalse($c->can('cocherEtapes', $projet));
         $this->assertFalse($c->can('valider', $projet));
+
+        // Après connexion, elle est dirigée vers l'organigramme public, pas vers une page 403.
+        $this->actingAs($c)->get('/dashboard')->assertRedirect('/');
+        $this->actingAs($this->compte('chef.section@dnh.local'))->get('/dashboard')->assertRedirect('/admin');
+        $this->actingAs($c)->get(route('profile.edit'))->assertOk()->assertDontSee(route('admin.notifications'));
     }
 
     public function test_un_charge_d_etudes_coche_les_etapes_de_ses_projets_et_le_responsable_est_notifie(): void

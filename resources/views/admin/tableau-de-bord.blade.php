@@ -29,13 +29,15 @@
                 @endforeach
             </select>
         </div>
-        <div>
-            <label for="agent_id" class="etiquette">Agent</label>
-            <select id="agent_id" name="agent_id" class="champ" onchange="this.form.submit()">
-                <option value="">Tous</option>
-                @foreach ($listeAgents as $a)<option value="{{ $a->id }}" @selected(($filtres['agent_id'] ?? null) == $a->id)>{{ $a->nom_complet }}</option>@endforeach
-            </select>
-        </div>
+        @if ($listeAgents->isNotEmpty())
+            <div>
+                <label for="agent_id" class="etiquette">Agent</label>
+                <select id="agent_id" name="agent_id" class="champ" onchange="this.form.submit()">
+                    <option value="">Tous</option>
+                    @foreach ($listeAgents as $a)<option value="{{ $a->id }}" @selected(($filtres['agent_id'] ?? null) == $a->id)>{{ $a->nom_complet }}</option>@endforeach
+                </select>
+            </div>
+        @endif
         <div>
             <label for="statut" class="etiquette">Statut</label>
             <select id="statut" name="statut" class="champ" onchange="this.form.submit()">

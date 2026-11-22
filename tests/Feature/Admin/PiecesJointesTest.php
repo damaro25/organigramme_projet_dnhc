@@ -158,18 +158,18 @@ class PiecesJointesTest extends TestCase
         $photo = PieceJointe::depuisFichier(UploadedFile::fake()->image('site.jpg'), $projet, $etape, $admin);
         $tableur = PieceJointe::depuisFichier(UploadedFile::fake()->create('budget.xlsx', 10), $projet, null, $admin);
 
-        $consultation = $this->compte('consultation@dnh.local');
+        $direction = $this->compte('dnh@dnh.local');
 
-        $this->actingAs($consultation)->get(route('admin.projets.pieces-jointes.apercu', [$projet, $pdf]))
+        $this->actingAs($direction)->get(route('admin.projets.pieces-jointes.apercu', [$projet, $pdf]))
             ->assertOk()->assertHeader('Content-Type', 'application/pdf')
             ->assertHeader('Content-Disposition', 'inline; filename=note.pdf');
-        $this->actingAs($consultation)->get(route('admin.projets.pieces-jointes.apercu', [$projet, $photo]))
+        $this->actingAs($direction)->get(route('admin.projets.pieces-jointes.apercu', [$projet, $photo]))
             ->assertOk()->assertHeader('Content-Type', 'image/jpeg');
-        $this->assertStringStartsWith('attachment', $this->actingAs($consultation)
+        $this->assertStringStartsWith('attachment', $this->actingAs($direction)
             ->get(route('admin.projets.pieces-jointes.apercu', [$projet, $tableur]))->headers->get('Content-Disposition'));
 
         // La page du projet affiche la visionneuse et les deux familles de fichiers.
-        $this->actingAs($consultation)->get(route('admin.projets.edit', $projet))
+        $this->actingAs($direction)->get(route('admin.projets.edit', $projet))
             ->assertOk()->assertSee('note.pdf')->assertSee('site.jpg')->assertSee('voir-fichier');
 
         // Un visiteur non connecté, ou un fichier d'un autre projet : refusé.

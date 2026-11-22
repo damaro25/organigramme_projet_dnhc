@@ -31,15 +31,17 @@
                 @endforeach
             </select>
         </div>
-        <div>
-            <label for="agent_id" class="etiquette">Agent</label>
-            <select id="agent_id" name="agent_id" class="champ">
-                <option value="">Tous</option>
-                @foreach ($agents as $a)
-                    <option value="{{ $a->id }}" @selected(($filtres['agent_id'] ?? null) == $a->id)>{{ $a->nom_complet }}</option>
-                @endforeach
-            </select>
-        </div>
+        @if ($agents->isNotEmpty())
+            <div>
+                <label for="agent_id" class="etiquette">Agent</label>
+                <select id="agent_id" name="agent_id" class="champ">
+                    <option value="">Tous</option>
+                    @foreach ($agents as $a)
+                        <option value="{{ $a->id }}" @selected(($filtres['agent_id'] ?? null) == $a->id)>{{ $a->nom_complet }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
         <div class="flex flex-col justify-end gap-1 text-sm">
             <label class="flex items-center gap-2"><input type="checkbox" name="retard" value="1" @checked($filtres['retard'] ?? false) class="rounded border-slate-300 text-red-600"> En retard</label>
             <label class="flex items-center gap-2"><input type="checkbox" name="archive" value="1" @checked($filtres['archive'] ?? false) class="rounded border-slate-300"> Archivés</label>

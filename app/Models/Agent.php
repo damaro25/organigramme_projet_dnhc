@@ -88,16 +88,17 @@ class Agent extends Model
 
     /* ---------------- Scopes ---------------- */
 
-    /** Agents que l'utilisateur peut consulter : toute la DNH, sa branche, ou sa propre fiche. */
+    /** Agents que l'utilisateur peut modifier : tous (Administrateur), sa branche (chef), sa propre fiche (photo). */
     public function scopeVisiblesPar(Builder $q, User $user): Builder
     {
-        if ($user->voitToutLaDnh()) {
+        if ($user->voitTousLesAgents()) {
             return $q;
         }
+        $soi = $user->agent_id !== null && $user->can('modifier_photos');
 
         return $q->where(fn ($w) => $w
-            ->whereIn('structure_id', $user->structuresGerees())
-            ->when($user->agent_id, fn ($w) => $w->orWhere('agents.id', $user->agent_id)));
+            ->whereIn('structure_id', $user->can('gerer_agents') ? $user->structuresGerees() : [])
+            ->when($soi, fn ($w) => $w->orWhere('agents.id', $user->agent_id)));
     }
 
     public function scopeActifs(Builder $q): Builder
