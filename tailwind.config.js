@@ -86,6 +86,13 @@ export default {
                 xl: '0 18px 32px -8px rgb(1 10 58 / 0.14)',
                 '2xl': '0 24px 48px -12px rgb(1 10 58 / 0.22)',
             },
+            // Couches : les menus passent toujours au-dessus du reste.
+            zIndex: {
+                superpose: '50',   // fenêtres, visionneuse, panneau de fiche, notifications
+                entete: '60',      // barre supérieure et en-tête public
+                'menu-fond': '65', // voile du menu mobile
+                menu: '70',        // menu latéral
+            },
             letterSpacing: {
                 titre: '0.04em',
             },

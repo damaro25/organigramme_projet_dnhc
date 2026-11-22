@@ -10,7 +10,7 @@
     {{-- Modification rapide d'un nœud --}}
     <div x-data="editionNoeud({ urlPhoto: @js(route('admin.agents.photo.store', '__ID__')), urlPoste: @js(route('admin.agents.poste', '__ID__')), avatarDefaut: @js(asset(\App\Models\Agent::AVATAR_DEFAUT)) })"
          @editer-agent.window="ouvrir($event.detail)" @keydown.escape.window="ouvert = false">
-        <div x-show="ouvert" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4" @click.self="ouvert = false">
+        <div x-show="ouvert" x-cloak class="sous-menu fixed bottom-0 right-0 z-superpose flex items-center justify-center bg-slate-900/50 p-4" @click.self="ouvert = false">
             <div class="w-full max-w-lg rounded-xl bg-white shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="titre-edition">
                 <div class="flex items-center justify-between border-b border-slate-200 px-5 py-3">
                     <h2 id="titre-edition" class="font-semibold" x-text="agent?.nom"></h2>

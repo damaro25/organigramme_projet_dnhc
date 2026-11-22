@@ -47,3 +47,13 @@
     --dnh-rayon: 6px;
     --dnh-ombre: 0 1px 3px rgb(1 10 58 / 0.08), 0 1px 2px rgb(1 10 58 / 0.04);
 }
+
+/* Les fenêtres et panneaux s'ouvrent sous les menus, jamais par-dessus.
+   --menu-haut : hauteur de la barre supérieure (mesurée en JS, partials/couches-menu).
+   --menu-gauche : largeur du menu latéral en grand écran. */
+:root { --menu-haut: 0px; --menu-gauche: 0px; }
+@media (min-width: 1024px) {
+    body.avec-menu-lateral { --menu-gauche: 16rem; }
+}
+.sous-menu { top: var(--menu-haut); left: var(--menu-gauche); }
+.sous-menu-haut { top: var(--menu-haut); }

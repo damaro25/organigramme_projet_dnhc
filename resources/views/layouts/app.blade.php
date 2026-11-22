@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/admin.js'])
     @livewireStyles
 </head>
-<body class="h-full bg-fond font-sans text-slate-800 antialiased">
+<body class="avec-menu-lateral h-full bg-fond font-sans text-slate-800 antialiased">
 @php
     $u = auth()->user();
     $menu = [
@@ -27,9 +27,9 @@
 @endphp
 <div x-data="{ menu: false }" class="flex min-h-full">
     {{-- Menu latéral --}}
-    <div x-show="menu" x-cloak class="fixed inset-0 z-30 bg-slate-900/40 lg:hidden" @click="menu = false"></div>
+    <div x-show="menu" x-cloak class="fixed inset-0 z-menu-fond bg-slate-900/40 lg:hidden" @click="menu = false"></div>
     <aside :class="menu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-           class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-primary-950 text-white transition-transform lg:sticky lg:top-0 lg:h-screen"
+           class="fixed inset-y-0 left-0 z-menu flex w-64 flex-col bg-primary-950 text-white transition-transform lg:sticky lg:top-0 lg:h-screen"
            aria-label="Menu latéral">
         <x-tricolore class="h-1" />
         <a href="{{ route('admin.tableau-de-bord') }}" class="block border-b border-white/10 px-5 pb-4 pt-5">
@@ -54,7 +54,7 @@
 
     <div class="flex min-w-0 flex-1 flex-col">
         {{-- Barre supérieure --}}
-        <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-fond-bord bg-white px-4 py-3 lg:px-8">
+        <header data-menu-haut class="sticky top-0 z-entete flex items-center gap-3 border-b border-fond-bord bg-white px-4 py-3 lg:px-8">
             <button type="button" class="rounded-md p-1.5 text-primary-950 hover:bg-primary-50 lg:hidden" @click="menu = true" aria-label="Ouvrir le menu" :aria-expanded="menu">
                 <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
@@ -101,7 +101,7 @@
 
 {{-- Messages de confirmation --}}
 <div x-data="notifications" x-init="ajouter(@js(session('succes')))" @notification.window="ajouter($event.detail.message ?? $event.detail[0]?.message)"
-     class="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2" aria-live="polite">
+     class="pointer-events-none fixed bottom-4 right-4 z-superpose flex flex-col gap-2" aria-live="polite">
     <template x-for="n in liste" :key="n.id">
         <div x-transition class="pointer-events-auto rounded-md border-l-4 border-accent-500 bg-primary-950 px-4 py-3 text-sm text-white shadow-lg" role="status" x-text="n.message"></div>
     </template>
@@ -109,5 +109,6 @@
 
 @livewireScriptConfig
     <x-visionneuse />
+@include('partials.couches-menu')
 </body>
 </html>

@@ -10,7 +10,7 @@
 </head>
 <body class="h-full bg-fond font-sans text-slate-800 antialiased">
     <div class="flex h-full flex-col">
-        <header class="bg-primary-950 text-white">
+        <header data-menu-haut class="relative z-entete bg-primary-950 text-white">
             <div class="flex items-center gap-6 px-4 py-3 lg:px-6">
                 <a href="{{ route('organigramme') }}" class="shrink-0" aria-label="Accueil : organigramme de la DNH">
                     <x-logo-dnh class="w-[190px] sm:w-[230px]" />
@@ -38,5 +38,6 @@
         <x-pied-officiel />
     </div>
     <x-visionneuse />
+@include('partials.couches-menu')
 </body>
 </html>

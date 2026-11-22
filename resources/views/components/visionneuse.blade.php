@@ -9,7 +9,7 @@
      @voir-fichier.window="f = $event.detail; ouvert = true"
      @keydown.escape.window="ouvert = false"
      x-show="ouvert" x-cloak
-     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-2 sm:p-6"
+     class="sous-menu fixed bottom-0 right-0 z-superpose flex items-center justify-center bg-slate-900/70 p-2 sm:p-6"
      @click.self="ouvert = false">
     <div class="flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl" role="dialog" aria-modal="true" :aria-label="'Aperçu de ' + f.nom">
         <div class="flex items-center gap-3 border-b border-slate-200 px-4 py-2.5">
