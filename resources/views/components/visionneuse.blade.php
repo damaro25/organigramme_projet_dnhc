@@ -5,6 +5,7 @@
     dehors pour fermer.
 --}}
 <div x-data="{ ouvert: false, f: {} }"
+     x-effect="document.body.dataset.visionneuse = ouvert ? 'ouverte' : ''"
      @voir-fichier.window="f = $event.detail; ouvert = true"
      @keydown.escape.window="ouvert = false"
      x-show="ouvert" x-cloak

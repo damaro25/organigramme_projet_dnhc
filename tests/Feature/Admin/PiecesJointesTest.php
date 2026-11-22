@@ -179,6 +179,33 @@ class PiecesJointesTest extends TestCase
         $this->actingAs($admin)->get(route('admin.projets.pieces-jointes.apercu', [$autre, $pdf]))->assertNotFound();
     }
 
+    public function test_la_fiche_de_l_agent_montre_les_fichiers_aux_comptes_connectes_seulement(): void
+    {
+        [$charge, $projet] = $this->projetDuCharge();
+        $projet->update(['archive' => false]); // la fiche ne montre que les projets non archivés
+        $etape = $projet->etapes()->firstOrFail();
+        PieceJointe::depuisFichier($this->pdf('note.pdf'), $projet, null, $charge);
+        PieceJointe::depuisFichier($this->pdf('pv.pdf'), $projet, $etape, $charge);
+        $url = route('agents.fiche', $charge->agent_id);
+
+        // Visiteur : le nombre de fichiers, sans nom ni lien.
+        $visiteur = collect($this->getJson($url)->assertOk()->assertJsonPath('voitFichiers', false)->json('projets'))
+            ->firstWhere('id', $projet->id);
+        $this->assertSame(2, $visiteur['nbFichiers']);
+        $this->assertSame([], $visiteur['documents']);
+        $this->assertSame(1, collect($visiteur['etapes'])->sum('nbFichiers'));
+        $this->assertStringNotContainsString('pv.pdf', $this->getJson($url)->getContent());
+
+        // Compte connecté : les fichiers, avec leurs liens d'aperçu et de téléchargement.
+        $connecte = collect($this->actingAs($charge)->getJson($url)->assertJsonPath('voitFichiers', true)->json('projets'))
+            ->firstWhere('id', $projet->id);
+        $this->assertSame('note.pdf', $connecte['documents'][0]['nom']);
+        $this->assertTrue($connecte['documents'][0]['visualisable']);
+        $justificatifs = collect($connecte['etapes'])->firstWhere('libelle', $etape->libelle)['fichiers'];
+        $this->assertSame('pv.pdf', $justificatifs[0]['nom']);
+        $this->actingAs($charge)->get($justificatifs[0]['url'])->assertOk()->assertHeader('Content-Type', 'application/pdf');
+    }
+
     public function test_supprimer_une_etape_ou_un_projet_efface_les_fichiers_du_disque(): void
     {
         $admin = $this->compte('admin@dnh.local');

@@ -161,6 +161,7 @@ L'interface applique la [charte graphique du Gouvernement de la République de G
 - **Justificatifs d'une étape** : sous chaque étape cochée, bouton *Joindre des justificatifs* (plusieurs fichiers à la fois). Peuvent joindre : les personnes qui peuvent cocher l'étape. Peuvent supprimer : l'auteur du fichier ou un gestionnaire du projet.
 - **Formats** : PDF, Word, Excel, PowerPoint, OpenDocument et photos (JPG, PNG, WEBP), 10 Mo maximum par fichier, 10 fichiers par envoi.
 - **Visualisation** : le bouton *Voir* ouvre les PDF et les photos dans une visionneuse, sans téléchargement ; les autres formats se téléchargent. Fichiers réservés aux comptes connectés.
+- **Fiche de l'agent** (clic sur une photo dans l'organigramme) : documents du projet et justificatifs de chaque étape, consultables sans quitter l'arbre. Un visiteur non connecté ne voit que le nombre de fichiers, avec un lien de connexion.
 - **Journal** : chaque ajout ou suppression de fichier y est tracé.
 
 **Limites de PHP.** Par défaut, PHP refuse les fichiers de plus de 2 Mo (`upload_max_filesize`) et les envois de plus de 8 Mo au total (`post_max_size`), avant même que l'application ne les voie. L'application affiche la limite réelle sous chaque zone d'envoi. Pour accepter 10 fichiers de 10 Mo, dans le `php.ini` (indiqué par `php --ini`) :

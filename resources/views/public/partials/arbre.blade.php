@@ -1,7 +1,7 @@
 {{-- Arbre, barre d'outils et panneau latéral, partagés entre la page publique et l'administration. --}}
 <div class="{{ $classe ?? 'absolute inset-0' }} flex flex-col"
      x-data="organigramme({ urlDonnees: @js($urlDonnees), urlFiche: @js(route('agents.fiche', '__ID__')), admin: @js($admin ?? false) })"
-     @keydown.escape.window="fermerFiche()">
+     @keydown.escape.window="document.body.dataset.visionneuse === 'ouverte' || fermerFiche()">
 
     {{-- Barre d'outils --}}
     <div class="z-20 flex flex-wrap items-center gap-2 border-b border-fond-bord bg-white px-4 py-2 lg:px-6">

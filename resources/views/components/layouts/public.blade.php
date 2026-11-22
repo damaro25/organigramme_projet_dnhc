@@ -30,5 +30,6 @@
 
         <x-pied-officiel />
     </div>
+    <x-visionneuse />
 </body>
 </html>

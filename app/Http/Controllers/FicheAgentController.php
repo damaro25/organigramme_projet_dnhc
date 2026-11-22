@@ -3,17 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
+use App\Models\PieceJointe;
 use App\Models\Projet;
 use Illuminate\Http\JsonResponse;
 
-/** Données du panneau latéral ouvert au clic sur une photo. */
+/**
+ * Données du panneau latéral ouvert au clic sur une photo.
+ *
+ * Fichiers joints : détaillés (nom, aperçu, téléchargement) pour les comptes qui
+ * ont accès à l'administration ; pour les visiteurs, seulement leur nombre, avec
+ * une invitation à se connecter, car ils peuvent contenir des documents internes.
+ */
 class FicheAgentController extends Controller
 {
+    private bool $voitFichiers = false;
+
     public function show(Agent $agent): JsonResponse
     {
         abort_unless($agent->actif, 404);
 
-        $agent->load(['structure.parent', 'projets' => fn ($q) => $q->nonArchives()->with('etapes', 'structure')->orderBy('date_fin_prevue')]);
+        $this->voitFichiers = (bool) auth()->user()?->can('acceder_admin');
+        $relations = $this->voitFichiers
+            ? ['etapes.piecesJointes', 'documents', 'structure']
+            : ['etapes' => fn ($q) => $q->withCount('piecesJointes'), 'structure', 'piecesJointes:id,projet_id'];
+
+        $agent->load(['structure.parent', 'projets' => fn ($q) => $q->nonArchives()->with($relations)->orderBy('date_fin_prevue')]);
 
         $donnees = [
             'agent' => [
@@ -29,12 +43,14 @@ class FicheAgentController extends Controller
             'taux' => Projet::moyenneTaux($agent->projets),
             'projets' => $agent->projets->map(fn (Projet $p) => $this->projet($p, $p->pivot->role))->values(),
             'structure' => null,
+            'voitFichiers' => $this->voitFichiers,
+            'urlConnexion' => route('login'),
         ];
 
         // Chef de division ou de section : projets de toute sa structure, avec un taux consolidé.
         if ($agent->estChefDeStructure()) {
             $projets = $agent->structure->projetsConsolides()
-                ->with(['etapes', 'structure', 'responsables'])
+                ->with([...$relations, 'responsables'])
                 ->orderBy('date_fin_prevue')
                 ->get();
 
@@ -68,7 +84,29 @@ class FicheAgentController extends Controller
                 'terminee' => $e->est_terminee,
                 'date' => $e->date_realisation?->format('d/m/Y'),
                 'commentaire' => $e->commentaire,
+                'fichiers' => $this->voitFichiers ? $e->piecesJointes->map(fn ($pj) => $this->fichier($p, $pj))->values() : [],
+                'nbFichiers' => $this->voitFichiers ? $e->piecesJointes->count() : (int) $e->pieces_jointes_count,
             ])->values(),
+            'documents' => $this->voitFichiers ? $p->documents->map(fn ($pj) => $this->fichier($p, $pj))->values() : [],
+            // Visiteur : nombre total de fichiers du projet (documents et justificatifs d'étapes).
+            'nbFichiers' => $this->voitFichiers
+                ? $p->documents->count() + $p->etapes->sum(fn ($e) => $e->piecesJointes->count())
+                : $p->piecesJointes->count(),
+        ];
+    }
+
+    /** Données d'un fichier pour la visionneuse (mêmes clés que le composant liste-fichiers). */
+    private function fichier(Projet $p, PieceJointe $pj): array
+    {
+        return [
+            'id' => $pj->id,
+            'nom' => $pj->nom,
+            'icone' => $pj->icone,
+            'taille' => $pj->taille_lisible,
+            'visualisable' => $pj->est_visualisable,
+            'image' => $pj->est_image,
+            'url' => route('admin.projets.pieces-jointes.apercu', [$p, $pj]),
+            'telechargement' => route('admin.projets.pieces-jointes.show', [$p, $pj]),
         ];
     }
 }
