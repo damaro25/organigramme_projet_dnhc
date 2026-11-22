@@ -39,7 +39,7 @@ class MatriceRolesTest extends TestCase
             'administrateur' => ['admin', array_keys(self::PAGES)],
             'direction (DNH)' => ['dnh', [...$lecture, 'journal']],
             'direction (DNAH)' => ['dnah', [...$lecture, 'journal']],
-            'chef de division' => ['chef.division', $gestion],
+            'chef de division' => ['chef2.division', $gestion],
             'chef de section' => ['chef.section', $gestion],
             'chargé d\'études' => ['charge.etudes', $lecture],
             'consultation' => ['consultation', $lecture],

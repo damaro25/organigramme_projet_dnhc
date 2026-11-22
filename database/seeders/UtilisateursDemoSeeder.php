@@ -24,7 +24,10 @@ class UtilisateursDemoSeeder extends Seeder
             ['admin@dnh.local', User::ROLE_ADMIN, $responsable('Informatique')],
             ['dnh@dnh.local', User::ROLE_DIRECTION, $responsable('DNH')],
             ['dnah@dnh.local', User::ROLE_DIRECTION, $responsable('DNAH')],
-            ['chef.division@dnh.local', User::ROLE_CHEF, $responsable('DAVP')],
+            // Un compte par chef de division : Planification / Économie, Aval, Amont.
+            ['chef1.division@dnh.local', User::ROLE_CHEF, $responsable('DPE')],
+            ['chef2.division@dnh.local', User::ROLE_CHEF, $responsable('DAVP')],
+            ['chef3.division@dnh.local', User::ROLE_CHEF, $responsable('DAMP')],
             ['chef.section@dnh.local', User::ROLE_CHEF, $responsable('SSTD')],
             ['charge.etudes@dnh.local', User::ROLE_CHARGE, $premierCharge],
             ['consultation@dnh.local', User::ROLE_CONSULTATION, $responsable('SAF')],

@@ -59,7 +59,7 @@ class AutorisationsTest extends TestCase
         $this->actingAs($this->compte('admin@dnh.local'))->get('/admin/structures')->assertOk();
         $this->actingAs($this->compte('admin@dnh.local'))->get('/admin/utilisateurs')->assertOk();
 
-        foreach (['dnh', 'chef.division', 'charge.etudes', 'consultation'] as $c) {
+        foreach (['dnh', 'chef1.division', 'chef2.division', 'chef3.division', 'charge.etudes', 'consultation'] as $c) {
             $this->actingAs($this->compte("{$c}@dnh.local"))->get('/admin/structures')->assertForbidden();
             $this->actingAs($this->compte("{$c}@dnh.local"))->get('/admin/utilisateurs')->assertForbidden();
         }
@@ -83,9 +83,17 @@ class AutorisationsTest extends TestCase
 
     public function test_un_chef_de_division_gere_toutes_les_sections_de_sa_division(): void
     {
-        $chef = $this->compte('chef.division@dnh.local'); // division Aval
+        $chef = $this->compte('chef2.division@dnh.local'); // division Aval
         $this->assertTrue($chef->can('update', $this->projetDeSection('SAI')));
         $this->assertFalse($chef->can('update', $this->projetDeSection('SESD')));
+
+        // Chaque chef de division ne gère que sa propre division.
+        $planification = $this->compte('chef1.division@dnh.local');
+        $amont = $this->compte('chef3.division@dnh.local');
+        $this->assertTrue($planification->can('update', $this->projetDeSection('DPE')));
+        $this->assertFalse($planification->can('update', $this->projetDeSection('DAVP')));
+        $this->assertTrue($amont->can('update', $this->projetDeSection('DAMP')));
+        $this->assertFalse($amont->can('update', $this->projetDeSection('DPE')));
     }
 
     public function test_la_direction_consulte_et_valide_mais_ne_modifie_pas(): void
