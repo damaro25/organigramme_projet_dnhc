@@ -100,7 +100,7 @@ class OrganigrammeSeeder extends Seeder
         ]);
 
         $agentDnh = $this->agent($dnh, 'Directeur National des Hydrocarbures', null, true, feminin: false);
-        $agentDnah = $this->agent($dnah, 'Directrice Nationale Adjointe des Hydrocarbures', $agentDnh, true, feminin: true);
+        $agentDnah = $this->agent($dnah, 'Directeur National Adjoint des Hydrocarbures', $agentDnh, true, feminin: false);
 
         // Services rattachés au DNH (affichés sur le côté).
         foreach (self::SERVICES_RATTACHES as $i => [$nom, $sigle, $groupe, $poste, $responsable]) {

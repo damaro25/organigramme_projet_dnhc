@@ -94,7 +94,7 @@ Mot de passe commun : **`Dnh@2026`**
 | --- | --- | --- | --- |
 | `admin@dnh.local` | Administrateur | Chef du service Informatique | Tout : agents, projets, structures, comptes, journal |
 | `dnh@dnh.local` | Direction | Directeur National (DNH) | Tout consulter, valider les projets, journal |
-| `dnah@dnh.local` | Direction | Directrice Nationale Adjointe (DNAH) | Idem |
+| `dnah@dnh.local` | Direction | Directeur National Adjoint (DNAH) | Idem |
 | `chef.division@dnh.local` | Chef de structure | Cheffe de la Division Aval Pétrolier | Gérer agents, photos et projets de sa division et de ses sections |
 | `chef.section@dnh.local` | Chef de structure | Cheffe de la section SSTD | Gérer agents, photos et projets de sa section |
 | `charge.etudes@dnh.local` | Chargé d'études | Premier chargé d'études de la SSTD | Consulter ses projets, modifier sa propre photo |
