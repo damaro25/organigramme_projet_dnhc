@@ -20,10 +20,19 @@ class StructureController extends Controller
     {
         $this->authorize('viewAny', Structure::class);
 
-        $structures = Structure::query()->withCount(['agents' => fn ($q) => $q->actifs()])->ordonne()->get();
+        $user = auth()->user();
+        $division = $user->can('gerer_structures') ? null : $user->structureDirigee();
+
+        // Un chef de division ne voit que sa division et ses sections.
+        $structures = Structure::query()
+            ->when($division, fn ($q) => $q->whereIn('id', $division->descendantIds()))
+            ->withCount(['agents' => fn ($q) => $q->actifs()])->ordonne()->get();
 
         // Structures groupées par parent pour un affichage en arbre (glisser-déposer entre structures sœurs).
-        return view('admin.structures.index', ['parParent' => $structures->groupBy(fn ($s) => $s->parent_id ?? 0)]);
+        return view('admin.structures.index', [
+            'parParent' => $structures->groupBy(fn ($s) => $s->parent_id ?? 0),
+            'racine' => $division?->parent_id ?? 0,
+        ]);
     }
 
     public function create(Request $request): View
@@ -59,8 +68,10 @@ class StructureController extends Controller
     /** Réordonne les structures sœurs (glisser-déposer). */
     public function reordonner(Request $request): JsonResponse
     {
-        $this->authorize('create', Structure::class);
         $ids = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['integer', 'exists:structures,id']])['ids'];
+        // L'administrateur réordonne tout ; un chef de division, les sections de sa division.
+        abort_unless($request->user()->can('create', Structure::class)
+            || array_diff(array_map('intval', $ids), $request->user()->sectionsModifiables()) === [], 403);
 
         DB::transaction(function () use ($ids) {
             foreach (array_values($ids) as $i => $id) {

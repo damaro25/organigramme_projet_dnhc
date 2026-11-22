@@ -1,4 +1,6 @@
 @php($creation = ! $structure->exists)
+{{-- Un chef de division ne change ni le type ni le rattachement de ses sections. --}}
+@php($verrouille = ! auth()->user()->can('gerer_structures'))
 <x-app-layout :titre="$creation ? 'Nouvelle structure' : $structure->nom">
     <x-slot name="header">
         <div class="flex items-center justify-between gap-3">
@@ -25,13 +27,13 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <label for="type" class="etiquette">Type *</label>
-                <select id="type" name="type" x-model="type" class="champ">
+                <select id="type" name="type" x-model="type" class="champ" @disabled($verrouille)>
                     @foreach ($types as $t)<option value="{{ $t->value }}">{{ $t->libelle() }}</option>@endforeach
                 </select>
             </div>
             <div x-show="type === 'service_rattache'">
                 <label for="groupe" class="etiquette">Groupe (affichage sur le côté du DNH) *</label>
-                <select id="groupe" name="groupe" class="champ">
+                <select id="groupe" name="groupe" class="champ" @disabled($verrouille)>
                     <option value="">— Choisir —</option>
                     @foreach ($groupes as $g)<option value="{{ $g->value }}" @selected(old('groupe', $structure->groupe?->value) === $g->value)>{{ $g->libelle() }}</option>@endforeach
                 </select>
@@ -41,15 +43,16 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <label for="parent_id" class="etiquette">Structure parente</label>
-                <select id="parent_id" name="parent_id" class="champ">
+                <select id="parent_id" name="parent_id" class="champ" @disabled($verrouille)>
                     <option value="">— Aucune (sommet) —</option>
                     @foreach ($parents as $p)<option value="{{ $p->id }}" @selected(old('parent_id', $structure->parent_id) == $p->id)>{{ $p->nom }}</option>@endforeach
                 </select>
                 <x-input-error :messages="$errors->get('parent_id')" class="mt-1" />
+                @if ($verrouille)<p class="mt-1 text-xs text-slate-500">Le type et le rattachement sont modifiés par l'administrateur.</p>@endif
             </div>
             <div>
                 <label for="type_lien" class="etiquette">Lien avec la structure parente</label>
-                <select id="type_lien" name="type_lien" class="champ">
+                <select id="type_lien" name="type_lien" class="champ" @disabled($verrouille)>
                     @foreach ($liens as $l)<option value="{{ $l->value }}" @selected(old('type_lien', $structure->type_lien?->value) === $l->value)>{{ $l->libelle() }}{{ $l->value === 'fonctionnel' ? ' (trait en pointillés)' : '' }}</option>@endforeach
                 </select>
             </div>

@@ -50,5 +50,17 @@ class StructureRequest extends FormRequest
             'type_lien' => $this->input('type_lien', 'hierarchique'),
             'ordre' => $this->input('ordre', 0) ?? 0,
         ]);
+
+        // Un chef de division modifie le libellé, le sigle, la couleur et l'ordre de ses
+        // sections, sans changer leur type ni les déplacer hors de sa division.
+        $structure = $this->route('structure');
+        if ($structure instanceof Structure && ! $this->user()->can('gerer_structures')) {
+            $this->merge([
+                'type' => $structure->type->value,
+                'groupe' => $structure->groupe?->value,
+                'parent_id' => $structure->parent_id,
+                'type_lien' => $structure->type_lien->value,
+            ]);
+        }
     }
 }

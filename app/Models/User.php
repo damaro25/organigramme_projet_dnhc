@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TypeStructure;
 use App\Services\PerimetreVisibilite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -74,6 +75,37 @@ class User extends Authenticatable
         return $perimetre->estGlobal()
             ? Structure::query()->pluck('id')->all()
             : $perimetre->structureIds();
+    }
+
+    /**
+     * Structure que dirige un chef (rôle chef de structure, fiche active et titulaire),
+     * null sinon.
+     */
+    public function structureDirigee(): ?Structure
+    {
+        if (! $this->hasRole(self::ROLE_CHEF)) {
+            return null;
+        }
+        $agent = $this->agent;
+
+        return $agent && $agent->actif && $agent->est_responsable ? $agent->structure : null;
+    }
+
+    public function estChefDeDivision(): bool
+    {
+        return $this->structureDirigee()?->type === TypeStructure::Division;
+    }
+
+    /**
+     * Sections (et autres sous-structures) que le chef de division peut modifier :
+     * celles de sa division, sans la division elle-même. Vide pour les autres comptes
+     * (l'administrateur passe par la permission gerer_structures).
+     *
+     * @return int[]
+     */
+    public function sectionsModifiables(): array
+    {
+        return $this->estChefDeDivision() ? $this->structureDirigee()->descendantIds(inclureSoi: false) : [];
     }
 
     private ?PerimetreVisibilite $perimetreCalcule = null;

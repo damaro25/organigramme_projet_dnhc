@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Builder;
  * - L'administrateur et la Direction (DNH et DNAH) voient tout.
  * - Le titulaire du nœud racine (Directeur National) voit tout, puisque tout est sous lui.
  * - Un compte sans fiche agent, ou dont la fiche est désactivée, ne voit rien.
+ * - Un chef ne sort jamais de sa structure : le chef de division voit les sections de sa
+ *   division, le chef de section les seuls agents de sa section, même si un agent d'une
+ *   autre structure lui est rattaché comme supérieur.
  *
  * Obtenu par User::perimetre(), qui le garde en mémoire pour la durée de la requête.
  */
@@ -51,6 +54,10 @@ class PerimetreVisibilite
             $this->global = true;
 
             return;
+        }
+
+        if ($dirigee = $user->structureDirigee()) {
+            $this->limiterA($dirigee->descendantIds(), $user->agent_id);
         }
 
         foreach ($this->noeuds as $noeud) {
@@ -155,6 +162,27 @@ class PerimetreVisibilite
     public function etapeIds(): array
     {
         return Etape::query()->whereIn('projet_id', $this->projetIds())->pluck('id')->all();
+    }
+
+    /**
+     * Garde les seuls nœuds des structures autorisées ; un nœud dont le parent a été
+     * retiré est rattaché au chef, qui reste la racine affichée.
+     */
+    private function limiterA(array $structureIds, int $agentRacineId): void
+    {
+        $autorisees = array_flip($structureIds);
+        $gardes = array_values(array_filter($this->noeuds,
+            fn ($n) => ! isset($n['structureId']) || isset($autorisees[$n['structureId']])));
+        $ids = array_flip(array_column($gardes, 'id'));
+        $racine = 'a'.$agentRacineId;
+
+        $this->noeuds = array_map(function ($n) use ($ids, $racine) {
+            if ($n['id'] !== $racine && ($n['parentId'] ?? null) !== null && ! isset($ids[$n['parentId']])) {
+                $n['parentId'] = $racine;
+            }
+
+            return $n;
+        }, $gardes);
     }
 
     private function ajouterStructure(?int $id): void
