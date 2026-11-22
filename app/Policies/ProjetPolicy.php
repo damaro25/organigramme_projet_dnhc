@@ -12,9 +12,10 @@ class ProjetPolicy
         return $user->can('acceder_admin');
     }
 
+    /** Consulter un projet, ses étapes et ses fichiers : dans son périmètre seulement. */
     public function view(User $user, Projet $projet): bool
     {
-        return $user->can('acceder_admin');
+        return $user->can('acceder_admin') && $projet->estVisiblePar($user);
     }
 
     public function create(User $user): bool

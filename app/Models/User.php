@@ -70,6 +70,22 @@ class User extends Authenticatable
         return $this->agent->structure->descendantIds();
     }
 
+    /**
+     * Périmètre de consultation : l'Administrateur, la Direction (DNH, DNAH) et le
+     * compte Consultation voient toute la DNH ; un chef voit sa branche (sa structure
+     * et celles en dessous) ; un chargé d'études voit ses propres projets.
+     */
+    public function voitToutLaDnh(): bool
+    {
+        return $this->hasAnyRole([self::ROLE_ADMIN, self::ROLE_DIRECTION, self::ROLE_CONSULTATION]);
+    }
+
+    /** Structures visibles dans les listes et les filtres ; null = toutes. */
+    public function structuresVisibles(): ?array
+    {
+        return $this->voitToutLaDnh() ? null : $this->structuresGerees();
+    }
+
     /** Vrai si l'utilisateur est affecté au projet via sa fiche agent. */
     public function estAffecteAuProjet(Projet $projet): bool
     {

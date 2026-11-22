@@ -179,7 +179,7 @@ class PiecesJointesTest extends TestCase
         $this->actingAs($admin)->get(route('admin.projets.pieces-jointes.apercu', [$autre, $pdf]))->assertNotFound();
     }
 
-    public function test_la_fiche_de_l_agent_montre_les_fichiers_aux_comptes_connectes_seulement(): void
+    public function test_la_fiche_de_l_agent_montre_les_fichiers_aux_comptes_du_perimetre(): void
     {
         [$charge, $projet] = $this->projetDuCharge();
         $projet->update(['archive' => false]); // la fiche ne montre que les projets non archivés
@@ -189,16 +189,18 @@ class PiecesJointesTest extends TestCase
         $url = route('agents.fiche', $charge->agent_id);
 
         // Visiteur : le nombre de fichiers, sans nom ni lien.
-        $visiteur = collect($this->getJson($url)->assertOk()->assertJsonPath('voitFichiers', false)->json('projets'))
+        $visiteur = collect($this->getJson($url)->assertOk()->assertJsonPath('connecte', false)->json('projets'))
             ->firstWhere('id', $projet->id);
+        $this->assertFalse($visiteur['voitFichiers']);
         $this->assertSame(2, $visiteur['nbFichiers']);
         $this->assertSame([], $visiteur['documents']);
         $this->assertSame(1, collect($visiteur['etapes'])->sum('nbFichiers'));
         $this->assertStringNotContainsString('pv.pdf', $this->getJson($url)->getContent());
 
         // Compte connecté : les fichiers, avec leurs liens d'aperçu et de téléchargement.
-        $connecte = collect($this->actingAs($charge)->getJson($url)->assertJsonPath('voitFichiers', true)->json('projets'))
+        $connecte = collect($this->actingAs($charge)->getJson($url)->assertJsonPath('connecte', true)->json('projets'))
             ->firstWhere('id', $projet->id);
+        $this->assertTrue($connecte['voitFichiers']);
         $this->assertSame('note.pdf', $connecte['documents'][0]['nom']);
         $this->assertTrue($connecte['documents'][0]['visualisable']);
         $justificatifs = collect($connecte['etapes'])->firstWhere('libelle', $etape->libelle)['fichiers'];

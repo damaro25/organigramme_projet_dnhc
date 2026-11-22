@@ -1,7 +1,12 @@
 <x-app-layout titre="Tableau de bord">
     <x-slot name="header">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="titre-page">Tableau de bord</h1>
+            <div>
+                <h1 class="titre-page">Tableau de bord</h1>
+                @if ($perimetre)
+                    <p class="text-sm text-slate-500">Périmètre : {{ $perimetre === 'vos projets' ? 'vos projets' : $perimetre.' et les structures en dessous' }}</p>
+                @endif
+            </div>
             <a href="{{ route('organigramme.pdf') }}" class="btn-secondaire py-1.5">⤓ Organigramme en PDF</a>
         </div>
     </x-slot>

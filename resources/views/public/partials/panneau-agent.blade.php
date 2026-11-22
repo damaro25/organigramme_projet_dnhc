@@ -83,7 +83,7 @@
                                     </div>
 
                                     {{-- Fichiers : documents du projet (comptes connectés) ou simple nombre (visiteurs) --}}
-                                    <template x-if="panneau.donnees.voitFichiers && projet.documents.length">
+                                    <template x-if="projet.voitFichiers && projet.documents.length">
                                         <div class="mt-3">
                                             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Documents du projet</p>
                                             <ul class="mt-1 space-y-0.5">
@@ -93,9 +93,10 @@
                                             </ul>
                                         </div>
                                     </template>
-                                    <p x-show="!panneau.donnees.voitFichiers && projet.nbFichiers" class="mt-2 text-xs text-slate-500">
+                                    <p x-show="!projet.voitFichiers && projet.nbFichiers" class="mt-2 text-xs text-slate-500">
                                         🔒 <span x-text="projet.nbFichiers + (projet.nbFichiers > 1 ? ' fichiers joints' : ' fichier joint')"></span> ·
-                                        <a :href="panneau.donnees.urlConnexion" class="font-medium text-dnh-700 hover:underline">connectez-vous pour les consulter</a>
+                                        <a x-show="!panneau.donnees.connecte" :href="panneau.donnees.urlConnexion" class="font-medium text-dnh-700 hover:underline">connectez-vous pour les consulter</a>
+                                        <span x-show="panneau.donnees.connecte">hors de votre périmètre</span>
                                     </p>
 
                                     {{-- Étapes --}}
@@ -111,14 +112,14 @@
                                                     <span x-show="etape.terminee" class="ml-1 text-xs font-medium text-green-700" x-text="'✔ ' + etape.date"></span>
                                                     <span x-show="etape.commentaire" class="block text-xs italic text-slate-500" x-text="etape.commentaire"></span>
                                                     {{-- Justificatifs joints à la validation de l'étape --}}
-                                                    <template x-if="panneau.donnees.voitFichiers && etape.fichiers.length">
+                                                    <template x-if="projet.voitFichiers && etape.fichiers.length">
                                                         <ul class="mt-1 space-y-0.5">
                                                             <template x-for="f in etape.fichiers" :key="f.id">
                                                                 @include('public.partials._fichier-panneau')
                                                             </template>
                                                         </ul>
                                                     </template>
-                                                    <span x-show="!panneau.donnees.voitFichiers && etape.nbFichiers" class="block text-xs text-slate-400"
+                                                    <span x-show="!projet.voitFichiers && etape.nbFichiers" class="block text-xs text-slate-400"
                                                           x-text="'🔒 ' + etape.nbFichiers + (etape.nbFichiers > 1 ? ' justificatifs' : ' justificatif')"></span>
                                                 </span>
                                             </li>

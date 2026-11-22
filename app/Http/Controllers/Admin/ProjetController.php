@@ -35,6 +35,7 @@ class ProjetController extends Controller
         $filtres['archive'] ??= 0;
 
         $projets = Projet::query()
+            ->visiblesPar($request->user())
             ->filtrer($filtres)
             ->when($filtres['retard'] ?? false, fn ($q) => $q->enRetard())
             ->avecSommesPoids()
@@ -46,8 +47,8 @@ class ProjetController extends Controller
         return view('admin.projets.index', [
             'projets' => $projets,
             'filtres' => $filtres,
-            'structures' => Structure::query()->whereIn('type', ['direction', 'division', 'section'])->ordonne()->get(),
-            'agents' => Agent::actifs()->orderBy('nom')->get(),
+            'structures' => Structure::query()->visiblesPar($request->user())->whereIn('type', ['direction', 'division', 'section'])->ordonne()->get(),
+            'agents' => Agent::actifs()->visiblesPar($request->user())->orderBy('nom')->get(),
         ]);
     }
 

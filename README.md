@@ -104,6 +104,17 @@ Mot de passe commun : **`Dnh@2026`**
 
 L'organigramme public, les fiches des agents et les exports PDF sont accessibles sans connexion.
 
+**Périmètre de consultation.** Dans l'administration, chaque compte ne voit que sa branche de l'organigramme :
+
+| Compte | Projets, agents, tableau de bord et fichiers visibles |
+| --- | --- |
+| Administrateur, Direction (DNH, DNAH), Consultation | Toute la DNH |
+| Chef de division | Sa division et ses sections, plus les projets où il est affecté ailleurs |
+| Chef de section | Sa section, plus les projets où il est affecté ailleurs |
+| Chargé d'études | Ses propres projets et sa propre fiche |
+
+L'arbre de l'organigramme reste complet pour tous. Dans la fiche d'un agent, les fichiers des projets hors périmètre sont seulement comptés (« 🔒 hors de votre périmètre »). La règle est centralisée dans `User::voitToutLaDnh()` et les portées `visiblesPar()` des modèles `Projet`, `Agent` et `Structure` ; testée dans `tests/Feature/Admin/PerimetreTest.php`.
+
 > ⚠️ Les noms, e-mails et téléphones des données de démonstration sont fictifs. Avant la mise en production, remplacer les données et **changer ou supprimer ces comptes** (menu *Utilisateurs*).
 
 ## Règles de calcul

@@ -6,15 +6,20 @@ use App\Enums\StatutProjet;
 use App\Enums\TypeStructure;
 use App\Models\Projet;
 use App\Models\Structure;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
-/** Indicateurs du tableau de bord, calculés sur les projets non archivés correspondant aux filtres. */
+/**
+ * Indicateurs du tableau de bord, calculés sur les projets non archivés correspondant
+ * aux filtres, dans le périmètre de l'utilisateur (toute la DNH, sa branche, ou ses projets).
+ */
 class TableauDeBordService
 {
-    public function calculer(array $filtres): array
+    public function calculer(array $filtres, ?User $user = null): array
     {
         $projets = Projet::query()
             ->nonArchives()
+            ->when($user, fn ($q) => $q->visiblesPar($user))
             ->filtrer(array_filter([
                 'structure_id' => $filtres['section'] ?? $filtres['division'] ?? null,
                 'agent_id' => $filtres['agent_id'] ?? null,
@@ -36,7 +41,10 @@ class TableauDeBordService
             ]),
             'enRetard' => $projets->filter->est_en_retard->sortBy('date_fin_prevue')->values(),
             'tauxGlobal' => Projet::moyenneTaux($projets),
-            'divisions' => $divisions->map(fn (Structure $d) => $this->indicateurs($d, $projets))->values(),
+            // Hors périmètre complet, on ne compare que les divisions où l'utilisateur a des projets.
+            'divisions' => $divisions->map(fn (Structure $d) => $this->indicateurs($d, $projets))
+                ->when($user && ! $user->voitToutLaDnh(), fn ($c) => $c->filter(fn ($l) => $l['nombre'] > 0))
+                ->values(),
             'sections' => $sections
                 ->map(fn (Structure $s) => $this->indicateurs($s, $projets) + ['division' => $divisions->firstWhere('id', $s->parent_id)])
                 ->filter(fn ($l) => $l['nombre'] > 0)

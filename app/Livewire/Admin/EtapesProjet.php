@@ -37,6 +37,7 @@ class EtapesProjet extends Component
 
     public function mount(Projet $projet): void
     {
+        // L'accès est contrôlé par la page du projet (ProjetPolicy::view) ; chaque action vérifie ses droits.
         $this->projet = $projet;
         $this->chargerCochage();
     }

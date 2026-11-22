@@ -121,6 +121,25 @@ class Projet extends Model
                 ->orWhereHas('etapes', fn ($e) => $e->where('est_terminee', false)));
     }
 
+    /** Projets que l'utilisateur peut consulter (voir User::voitToutLaDnh). */
+    public function scopeVisiblesPar(Builder $q, User $user): Builder
+    {
+        if ($user->voitToutLaDnh()) {
+            return $q;
+        }
+
+        return $q->where(fn ($w) => $w
+            ->whereIn('structure_id', $user->structuresGerees())
+            ->when($user->agent_id, fn ($w) => $w->orWhereHas('agents', fn ($a) => $a->where('agents.id', $user->agent_id))));
+    }
+
+    public function estVisiblePar(User $user): bool
+    {
+        return $user->voitToutLaDnh()
+            || in_array($this->structure_id, $user->structuresGerees(), true)
+            || $user->estAffecteAuProjet($this);
+    }
+
     public function scopeFiltrer(Builder $q, array $f): Builder
     {
         return $q

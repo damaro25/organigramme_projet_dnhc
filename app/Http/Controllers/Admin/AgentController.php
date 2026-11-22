@@ -27,6 +27,7 @@ class AgentController extends Controller
         ]);
 
         $agents = Agent::query()
+            ->visiblesPar($request->user())
             ->with('structure', 'superieur')
             ->recherche($filtres['recherche'] ?? null)
             ->dansStructure($filtres['section'] ?? $filtres['division'] ?? null)
@@ -38,8 +39,8 @@ class AgentController extends Controller
         return view('admin.agents.index', [
             'agents' => $agents,
             'filtres' => $filtres,
-            'divisions' => Structure::deType(TypeStructure::Division)->ordonne()->get(),
-            'sections' => Structure::deType(TypeStructure::Section)->ordonne()->get(),
+            'divisions' => Structure::deType(TypeStructure::Division)->visiblesPar($request->user())->ordonne()->get(),
+            'sections' => Structure::deType(TypeStructure::Section)->visiblesPar($request->user())->ordonne()->get(),
         ]);
     }
 

@@ -147,6 +147,14 @@ class Structure extends Model
     /* ---------------- Indicateurs ---------------- */
 
     /** Projets non archivés de la structure et de ses sous-structures. */
+    /** Structures proposées dans les filtres : toutes, ou la branche de l'utilisateur. */
+    public function scopeVisiblesPar(Builder $q, User $user): Builder
+    {
+        $ids = $user->structuresVisibles();
+
+        return $ids === null ? $q : $q->whereIn('id', $ids);
+    }
+
     public function projetsConsolides(): Builder
     {
         return Projet::query()->nonArchives()->whereIn('structure_id', $this->descendantIds());

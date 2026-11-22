@@ -10,22 +10,17 @@ use Illuminate\Http\JsonResponse;
 /**
  * Données du panneau latéral ouvert au clic sur une photo.
  *
- * Fichiers joints : détaillés (nom, aperçu, téléchargement) pour les comptes qui
- * ont accès à l'administration ; pour les visiteurs, seulement leur nombre, avec
- * une invitation à se connecter, car ils peuvent contenir des documents internes.
+ * Fichiers joints : détaillés (nom, aperçu, téléchargement) seulement pour les
+ * projets que le compte connecté peut consulter (son périmètre, voir
+ * User::voitToutLaDnh) ; sinon, et pour les visiteurs, seulement leur nombre.
  */
 class FicheAgentController extends Controller
 {
-    private bool $voitFichiers = false;
-
     public function show(Agent $agent): JsonResponse
     {
         abort_unless($agent->actif, 404);
 
-        $this->voitFichiers = (bool) auth()->user()?->can('acceder_admin');
-        $relations = $this->voitFichiers
-            ? ['etapes.piecesJointes', 'documents', 'structure']
-            : ['etapes' => fn ($q) => $q->withCount('piecesJointes'), 'structure', 'piecesJointes:id,projet_id'];
+        $relations = ['etapes.piecesJointes', 'documents', 'structure'];
 
         $agent->load(['structure.parent', 'projets' => fn ($q) => $q->nonArchives()->with($relations)->orderBy('date_fin_prevue')]);
 
@@ -43,7 +38,7 @@ class FicheAgentController extends Controller
             'taux' => Projet::moyenneTaux($agent->projets),
             'projets' => $agent->projets->map(fn (Projet $p) => $this->projet($p, $p->pivot->role))->values(),
             'structure' => null,
-            'voitFichiers' => $this->voitFichiers,
+            'connecte' => auth()->check(),
             'urlConnexion' => route('login'),
         ];
 
@@ -66,6 +61,8 @@ class FicheAgentController extends Controller
 
     private function projet(Projet $p, ?string $role = null): array
     {
+        $voitFichiers = (bool) auth()->user()?->can('view', $p);
+
         return [
             'id' => $p->id,
             'titre' => $p->titre,
@@ -84,14 +81,13 @@ class FicheAgentController extends Controller
                 'terminee' => $e->est_terminee,
                 'date' => $e->date_realisation?->format('d/m/Y'),
                 'commentaire' => $e->commentaire,
-                'fichiers' => $this->voitFichiers ? $e->piecesJointes->map(fn ($pj) => $this->fichier($p, $pj))->values() : [],
-                'nbFichiers' => $this->voitFichiers ? $e->piecesJointes->count() : (int) $e->pieces_jointes_count,
+                'fichiers' => $voitFichiers ? $e->piecesJointes->map(fn ($pj) => $this->fichier($p, $pj))->values() : [],
+                'nbFichiers' => $e->piecesJointes->count(),
             ])->values(),
-            'documents' => $this->voitFichiers ? $p->documents->map(fn ($pj) => $this->fichier($p, $pj))->values() : [],
-            // Visiteur : nombre total de fichiers du projet (documents et justificatifs d'étapes).
-            'nbFichiers' => $this->voitFichiers
-                ? $p->documents->count() + $p->etapes->sum(fn ($e) => $e->piecesJointes->count())
-                : $p->piecesJointes->count(),
+            'voitFichiers' => $voitFichiers,
+            'documents' => $voitFichiers ? $p->documents->map(fn ($pj) => $this->fichier($p, $pj))->values() : [],
+            // Nombre total de fichiers (documents et justificatifs), affiché quand on ne peut pas les ouvrir.
+            'nbFichiers' => $p->documents->count() + $p->etapes->sum(fn ($e) => $e->piecesJointes->count()),
         ];
     }
 
