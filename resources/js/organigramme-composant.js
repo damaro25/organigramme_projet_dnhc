@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
+import { apparitionNoeud, ouvrirPanneau, fermerPanneau, revelerContenu } from './animations';
 
 const echapper = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -97,9 +98,19 @@ Alpine.data('organigramme', ({ urlDonnees, urlFiche, admin = false }) => ({
         }, true);
 
         window.addEventListener('organigramme-recharger', () => this.recharger());
+
+        // Animations du panneau latéral.
+        this.$watch('panneau.ouvert', (ouvert) => (ouvert
+            ? ouvrirPanneau(this.$refs.panneau)
+            : fermerPanneau(this.$refs.panneau, () => this.panneau.ouvert)));
+        const reveler = () => this.$nextTick(() => revelerContenu(this.$refs.panneauCorps));
+        this.$watch('panneau.donnees', (d) => { if (d) reveler(); });
+        this.$watch('panneau.onglet', reveler);
     },
 
     dessiner() {
+        // Au premier affichage, les nœuds apparaissent niveau par niveau ; ensuite (dépliage), d'un coup.
+        let premierRendu = true;
         this.chart = new OrgChart()
             .container(this.$refs.arbre)
             .data(this.noeuds)
@@ -123,6 +134,11 @@ Alpine.data('organigramme', ({ urlDonnees, urlFiche, admin = false }) => ({
                     .attr('stroke', n.data._highlighted ? '#f59e0b' : 'none')
                     .attr('stroke-width', n.data._highlighted ? 8 : 0)
                     .attr('rx', 14);
+                // Nouveau nœud (l'élément <g> est recréé par d3 à chaque apparition).
+                if (!this.__apparu) {
+                    this.__apparu = true;
+                    apparitionNoeud(this.querySelector('.node-foreign-object-div > *'), premierRendu ? Math.min(n.depth * 0.08, 0.4) : 0.05);
+                }
             })
             .linkUpdate(function (n) {
                 const fonctionnel = n.data.lien === 'fonctionnel';
@@ -133,6 +149,7 @@ Alpine.data('organigramme', ({ urlDonnees, urlFiche, admin = false }) => ({
             })
             .render()
             .fit();
+        premierRendu = false;
     },
 
     async recharger() {

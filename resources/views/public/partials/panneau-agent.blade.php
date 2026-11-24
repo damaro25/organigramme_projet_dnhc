@@ -1,8 +1,7 @@
 {{-- Panneau latéral : fiche de l'agent et liste de ses projets (données chargées en JSON). --}}
-<div x-show="panneau.ouvert" x-cloak class="fixed inset-0 z-40 bg-slate-900/30 lg:hidden" @click="fermerFiche()"></div>
-<aside x-show="panneau.ouvert" x-cloak
-       x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-       x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
+<div x-show="panneau.ouvert" x-cloak x-transition.opacity.duration.200ms class="fixed inset-0 z-40 bg-slate-900/30 lg:hidden" @click="fermerFiche()"></div>
+{{-- Ouverture / fermeture animées par framer-motion (voir resources/js/animations.js). --}}
+<aside x-ref="panneau" style="visibility:hidden;transform:translateX(100%)" :aria-hidden="!panneau.ouvert"
        class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-2xl"
        role="dialog" aria-modal="true" aria-label="Fiche de l'agent">
 
@@ -18,14 +17,14 @@
         </button>
     </div>
 
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto" x-ref="panneauCorps">
         <p x-show="panneau.chargement" class="p-6 text-sm text-slate-500">Chargement…</p>
         <p x-show="panneau.donnees?.erreur" class="p-6 text-sm text-red-700" x-text="panneau.donnees?.erreur"></p>
 
         <template x-if="panneau.donnees && !panneau.donnees.erreur">
             <div>
                 {{-- Identité --}}
-                <div class="flex gap-4 bg-dnh-50 px-5 py-5">
+                <div data-revele class="flex gap-4 bg-dnh-50 px-5 py-5">
                     <img :src="panneau.donnees.agent.photo" :alt="'Photo de ' + panneau.donnees.agent.nom" class="h-24 w-24 shrink-0 rounded-full object-cover ring-4 ring-white">
                     <div class="min-w-0">
                         <p class="text-lg font-bold text-slate-900" x-text="panneau.donnees.agent.nom"></p>
@@ -40,7 +39,7 @@
                 </div>
 
                 {{-- Onglets : ses projets / projets de sa structure (chefs) --}}
-                <div x-show="panneau.donnees.structure" class="flex border-b border-slate-200 px-5 text-sm">
+                <div data-revele x-show="panneau.donnees.structure" class="flex border-b border-slate-200 px-5 text-sm">
                     <button type="button" @click="panneau.onglet = 'agent'" :class="panneau.onglet === 'agent' ? 'border-dnh-600 text-dnh-700' : 'border-transparent text-slate-500'" class="-mb-px border-b-2 px-3 py-2 font-medium">Ses projets</button>
                     <button type="button" @click="panneau.onglet = 'structure'" :class="panneau.onglet === 'structure' ? 'border-dnh-600 text-dnh-700' : 'border-transparent text-slate-500'" class="-mb-px border-b-2 px-3 py-2 font-medium">Projets de la structure</button>
                 </div>
@@ -61,7 +60,7 @@
 
                         <ul class="space-y-4">
                             <template x-for="projet in vue.projets" :key="projet.id">
-                                <li class="rounded-xl border border-slate-200 p-4" :class="projet.enRetard ? 'border-red-300 bg-red-50/40' : ''">
+                                <li data-revele class="rounded-xl border border-slate-200 p-4" :class="projet.enRetard ? 'border-red-300 bg-red-50/40' : ''">
                                     <div class="flex items-start justify-between gap-2">
                                         <p class="font-semibold text-slate-900" x-text="projet.titre"></p>
                                         <span class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" :class="classeStatut(projet.statut)" x-text="projet.statutLibelle"></span>
@@ -77,7 +76,7 @@
                                     {{-- Barre de progression : rouge < 30 %, orange 30–70 %, vert > 70 % --}}
                                     <div class="mt-3 flex items-center gap-3">
                                         <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200" role="progressbar" :aria-valuenow="projet.taux" aria-valuemin="0" aria-valuemax="100">
-                                            <div class="h-full rounded-full transition-all" :class="couleurBarre(projet.couleur)" :style="'width:' + projet.taux + '%'"></div>
+                                            <div data-barre class="h-full rounded-full" :class="couleurBarre(projet.couleur)" :style="'width:' + projet.taux + '%'"></div>
                                         </div>
                                         <span class="w-10 text-right text-sm font-bold" :class="couleurTexte(projet.couleur)" x-text="projet.taux + '%'"></span>
                                     </div>
